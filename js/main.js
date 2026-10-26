@@ -1,9 +1,10 @@
 import { nav } from "./content.js";
-import { resolve, navLink } from "./pages.js";
+import { resolve, navLink, lockoutPage } from "./pages.js";
 import { mountEye } from "./eye.js";
 import { burstAt } from "./field.js";
 import { reduceMotion } from "./pointer.js";
 import { mountThemePicker } from "./themes.js";
+import { blast, lockedUntil } from "./rage.js";
 
 const view = document.getElementById("view");
 const header = document.getElementById("site-header");
@@ -43,7 +44,10 @@ function offset(to, from) {
 }
 
 function render(path, { animate = true } = {}) {
-  const page = resolve(path);
+  // While the eye's lockout is running, every address shows the lockout page.
+  const locked = lockedUntil();
+  const page = locked ? lockoutPage(locked, () => render(currentPath, { animate: false })) : resolve(path);
+  const bare = page.home || page.bare; // no header on these
   document.title = page.home ? "Esper" : `${page.title} · Esper`;
 
   const el = document.createElement("div");
@@ -52,9 +56,9 @@ function render(path, { animate = true } = {}) {
 
   // On first load, snap the header into place instead of animating it.
   if (firstRender) header.style.transition = "none";
-  header.classList.toggle("hidden", !!page.home);
+  header.classList.toggle("hidden", !!bare);
   if (firstRender) requestAnimationFrame(() => requestAnimationFrame(() => (header.style.transition = "")));
-  header.inert = !!page.home;
+  header.inert = !!bare;
   document.querySelectorAll("#site-nav a").forEach((a) => {
     a.classList.toggle("current", path.startsWith(a.getAttribute("href")));
   });
@@ -87,7 +91,9 @@ function render(path, { animate = true } = {}) {
   const slot = el.querySelector(".home-eye");
   if (slot) {
     const wave = ({ x, y }) => burstAt(x, y);
-    mountEye(slot, { intro: firstRender, onOpen: wave, onPoke: wave });
+    // Too many clicks and the eye fires its laser, locking the visitor out.
+    const fire = (at) => blast(at, () => render(currentPath, { animate: false }));
+    mountEye(slot, { intro: firstRender, onOpen: wave, onPoke: wave, onRage: fire });
   }
   page.mount?.(el);
 

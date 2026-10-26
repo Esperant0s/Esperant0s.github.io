@@ -139,8 +139,13 @@ let shapes;
 //   intro:  play the slow wake-up sequence instead of starting open
 //   onOpen: called with the eye's centre (in viewport px) once it is fully open
 //   onPoke: if given, clicking the eye irritates it (rapid blinks, bloodshot
-//           veins, an angry squint), then calls this with the eye's centre
-export function mountEye(slot, { intro = false, onOpen, onPoke } = {}) {
+//           veins, an angry squint), then calls this with the eye's centre.
+//           Stroking the cursor back and forth over it pets it and makes it happy.
+//   onRage: if given, clicking it many times in quick succession makes it
+//           charge a laser, then calls this with the eye's centre to fire it
+//   mood:   "angry" holds a permanent scowl (for the lockout page)
+// Returns { soothe } to calm an angry eye down and make it happy.
+export function mountEye(slot, { intro = false, onOpen, onPoke, onRage, mood } = {}) {
   shapes ??= { burst: buildBurst(), iris: buildIris(), angryVeins: buildAngryVeins() };
   const { burst, iris: irisShape, angryVeins } = shapes;
   const id = `eye-clip-${++count}`;
@@ -174,6 +179,9 @@ export function mountEye(slot, { intro = false, onOpen, onPoke } = {}) {
             <path class="spiral" d="${irisShape.spiral}" />
             <circle class="rim" cx="${CX}" cy="${CY}" r="12.6" />
             <path class="pupil" />
+            <circle class="glint" cx="${CX + 3.5}" cy="${CY - 4}" r="2" />
+            <!-- Laser charge, gathering in the pupil before the blast. -->
+            <circle class="charge" cx="${CX}" cy="${CY}" r="0" />
           </g>
         </g>
         <path class="upper-lid" />
@@ -184,30 +192,55 @@ export function mountEye(slot, { intro = false, onOpen, onPoke } = {}) {
         <path class="lid-line" />
         <path class="lid-glow" />
       </g>
+      <circle class="charge-glow" cx="${CX}" cy="${CY}" r="0" />
     </svg>`;
 
   const svg = slot.querySelector("svg");
   const lids = svg.querySelectorAll(".lid");
   const iris = svg.querySelector(".iris");
   const pupil = svg.querySelector(".pupil");
+  const glint = svg.querySelector(".glint");
   const burstEl = svg.querySelector(".burst");
   const upperLid = svg.querySelector(".upper-lid");
   const frownEl = svg.querySelector(".frown");
   const [lidLine, lidGlow] = frownEl.querySelectorAll("path");
   const frownMask = svg.querySelector(".frown-mask");
+  const charge = svg.querySelector(".charge");
+  const chargeGlow = svg.querySelector(".charge-glow");
   const alive = () => svg.isConnected;
 
   // openness: 0 = shut, 1 = fully open. The eye stands upright, so the lids
   // are left/right quadratic curves whose control points close toward the
   // vertical centre line. The slit pupil is a little wider while the eye is
   // half shut, as if adjusting to the light.
+  let openNow = 1;
+  let happiness = 0;
+
   function setOpenness(o) {
+    openNow = o;
     const reach = EYE_W * 2 * o;
     const d = `M${CX} ${CY - EYE_H} Q${CX - reach} ${CY} ${CX} ${CY + EYE_H} Q${CX + reach} ${CY} ${CX} ${CY - EYE_H} Z`;
     for (const el of lids) el.setAttribute("d", d);
-    const slit = 1.4 + (1 - o) * 1.6;
-    pupil.setAttribute("d", `M${CX} ${CY - 11} Q${CX + slit * 2} ${CY} ${CX} ${CY + 11} Q${CX - slit * 2} ${CY} ${CX} ${CY - 11} Z`);
+    setPupil();
     burstEl.style.opacity = 0.75 + o * 0.25;
+  }
+
+  // The pupil is a pointed slit that widens a little as the eye closes. When
+  // the eye is happy it dilates like a cat's into a big round pupil with a
+  // glint: the width grows, the tips round off, and the height shrinks to match.
+  const PUPIL_HAPPY_R = 9.5;
+  function setPupil() {
+    const slit = 1.4 + (1 - openNow) * 1.6;
+    const halfW = slit + (PUPIL_HAPPY_R - slit) * happiness;
+    const halfH = 11 - (11 - PUPIL_HAPPY_R) * happiness;
+    const w = halfW / 0.75; // a cubic bulges to 3/4 of its control point's reach
+    const k = halfH * happiness; // 0 = pointed tips, full = round
+    pupil.setAttribute(
+      "d",
+      `M${CX} ${f(CY - halfH)} C${f(CX + w)} ${f(CY - k)} ${f(CX + w)} ${f(CY + k)} ${CX} ${f(CY + halfH)} ` +
+        `C${f(CX - w)} ${f(CY + k)} ${f(CX - w)} ${f(CY - k)} ${CX} ${f(CY - halfH)} Z`
+    );
+    glint.style.opacity = happiness;
   }
 
   // frown: 0 = relaxed, 1 = full scowl. The upper lid drops into a sharp V
@@ -225,6 +258,14 @@ export function mountEye(slot, { intro = false, onOpen, onPoke } = {}) {
     lidLine.setAttribute("d", v);
     lidGlow.setAttribute("d", v);
     frownEl.style.opacity = Math.min(1, amount * 3);
+  }
+
+  // happy: 0 = neutral, 1 = beaming. The pupil dilates like a happy cat's and
+  // the whole eye glows warmer.
+  function setHappy(amount) {
+    happiness = amount;
+    svg.classList.toggle("happy", amount > 0.3);
+    setPupil();
   }
 
   function animate(from, to, ms, apply) {
@@ -331,22 +372,65 @@ export function mountEye(slot, { intro = false, onOpen, onPoke } = {}) {
     requestAnimationFrame(trackIris);
   }
 
+  // Smoothly eases happiness toward a target, so petting fades in and out.
+  let happyTarget = 0;
+  let happyLoop = false;
+  function moveHappiness() {
+    if (happyLoop) return;
+    happyLoop = true;
+    (function step() {
+      if (!alive()) return;
+      setHappy(happiness + (happyTarget - happiness) * (reduceMotion ? 1 : 0.15));
+      if (Math.abs(happyTarget - happiness) > 0.005) requestAnimationFrame(step);
+      else {
+        setHappy(happyTarget);
+        happyLoop = false;
+      }
+    })();
+  }
+
+  // Little hearts that float up from the top of the eye while it's petted.
+  function heart() {
+    const rect = svg.getBoundingClientRect();
+    const el = document.createElement("span");
+    el.className = "eye-heart";
+    el.setAttribute("aria-hidden", "true");
+    el.innerHTML = `<svg viewBox="0 0 10 9"><path d="M5 9 L0.7 4.6 A2.4 2.4 0 0 1 5 1.6 A2.4 2.4 0 0 1 9.3 4.6 Z" /></svg>`;
+    el.style.left = `${rect.left + rect.width * (0.3 + Math.random() * 0.4)}px`;
+    el.style.top = `${rect.top + rect.height * 0.3}px`;
+    el.style.setProperty("--drift", `${(Math.random() - 0.5) * 3}rem`);
+    document.body.append(el);
+    setTimeout(() => el.remove(), 1400);
+  }
+
+  let irritated = false;
+  let calmAt = 0;
+  let raging = false;
+
   if (onPoke) {
     svg.classList.add("pokeable");
     svg.setAttribute("role", "button");
     svg.setAttribute("tabindex", "0");
-    svg.setAttribute("aria-label", "Esper logo: a spiked, burning eye. Click to annoy it.");
+    svg.setAttribute("aria-label", "Esper logo: a spiked, burning eye. Click to annoy it, or stroke it to pet it.");
     // Clicking irritates the eye: it scowls right away (a V-shaped frown and
     // bloodshot veins) while blinking rapidly and sending out the background
-    // wave, then holds the scowl for a couple of seconds. Clicking again while it's irritated sends another wave and
-    // keeps it annoyed for longer.
+    // wave, then holds the scowl for a couple of seconds. Clicking again while
+    // it's irritated sends another wave and keeps it annoyed for longer.
     const SQUINT = 0.8; // the frown does most of the work, so only a slight squint
     const ANNOYED_MS = 1800; // how long the scowl holds after it appears
-    let irritated = false;
-    let calmAt = 0;
+    const RAGE_CLICKS = 7; // this many clicks...
+    const RAGE_WINDOW = 3000; // ...within this many ms makes it fire its laser
+    let clicks = [];
 
     const poke = async () => {
-      calmAt = performance.now() + ANNOYED_MS;
+      if (raging) return;
+      const now = performance.now();
+      clicks = clicks.filter((t) => now - t < RAGE_WINDOW).concat(now);
+      if (onRage && clicks.length >= RAGE_CLICKS) return rage();
+
+      calmAt = now + ANNOYED_MS;
+      happyTarget = 0;
+      moveHappiness();
       if (irritated) return onPoke(centre());
       irritated = true;
       // React immediately: the scowl, veins and wave start on the click itself.
@@ -365,13 +449,36 @@ export function mountEye(slot, { intro = false, onOpen, onPoke } = {}) {
       // Count the hold from when the scowl is actually showing, so it always
       // gets its full time even if the blinks ran slowly.
       calmAt = Math.max(calmAt, performance.now() + ANNOYED_MS);
-      while (performance.now() < calmAt) await wait(100);
+      while (performance.now() < calmAt && !raging) await wait(100);
+      if (raging) return; // the laser sequence takes over from here
       svg.classList.remove("irritated");
       if (reduceMotion) setFrown(0);
       else await Promise.all([animateOpenness(SQUINT, 1, 450), animate(1, 0, 450, setFrown)]);
       busy = false;
       irritated = false;
     };
+
+    // Too many clicks: the eye loses it. Full scowl, violent shaking, and a
+    // ball of light in the theme's colors gathers in the pupil before firing.
+    async function rage() {
+      raging = true;
+      happyTarget = 0;
+      setHappy(0);
+      svg.classList.add("irritated", "raging");
+      setOpenness(1);
+      setFrown(1);
+      const CHARGE_MS = reduceMotion ? 300 : 1600;
+      await animate(0, 1, CHARGE_MS, (t) => {
+        charge.setAttribute("r", f(t * 9));
+        chargeGlow.setAttribute("r", f(t * 26));
+        chargeGlow.style.opacity = t;
+      });
+      // Fire from the charge ball itself, measured where it's drawn on screen,
+      // so the blast starts exactly at the glowing pupil.
+      const ball = charge.getBoundingClientRect();
+      onRage(ball.width ? { x: ball.left + ball.width / 2, y: ball.top + ball.height / 2 } : centre());
+    }
+
     svg.addEventListener("click", poke);
     svg.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
@@ -379,9 +486,81 @@ export function mountEye(slot, { intro = false, onOpen, onPoke } = {}) {
         poke();
       }
     });
+
+    // Petting: stroking the cursor back and forth across the eye. Each time
+    // the stroke changes direction counts; a few quick ones and it's happy.
+    let lastX = null;
+    let heading = 0;
+    let travelled = 0;
+    let turns = [];
+    let lastPet = 0;
+    let lastHeart = 0;
+
+    svg.addEventListener("pointermove", (e) => {
+      if (raging) return;
+      if (lastX === null) {
+        lastX = e.clientX;
+        return;
+      }
+      const dx = e.clientX - lastX;
+      lastX = e.clientX;
+      if (!dx) return;
+      const dir = Math.sign(dx);
+      travelled += Math.abs(dx);
+      if (dir !== heading) {
+        if (heading !== 0 && travelled > 12) turns.push(performance.now());
+        heading = dir;
+        travelled = 0;
+      }
+      const now = performance.now();
+      turns = turns.filter((t) => now - t < 1200);
+      if (turns.length >= 3) {
+        lastPet = now;
+        clicks = []; // petting forgives recent clicks
+        if (irritated) calmAt = now; // and calms an annoyed eye
+        happyTarget = 1;
+        moveHappiness();
+        if (now - lastHeart > 300 && !reduceMotion) {
+          lastHeart = now;
+          heart();
+        }
+      }
+    });
+    svg.addEventListener("pointerleave", () => {
+      lastX = null;
+      turns = [];
+    });
+
+    // Once the petting stops, the happiness fades after a moment.
+    (async function settle() {
+      while (alive()) {
+        await wait(250);
+        if (happyTarget > 0 && performance.now() - lastPet > 1200) {
+          happyTarget = 0;
+          moveHappiness();
+        }
+      }
+    })();
+  }
+
+  // Calms an angry eye: the scowl melts away and it turns happy.
+  async function soothe() {
+    svg.classList.remove("irritated", "raging");
+    happyTarget = 1;
+    moveHappiness();
+    if (reduceMotion) setFrown(0);
+    else await animate(1, 0, 500, setFrown);
   }
 
   setFrown(0);
+  setHappy(0);
+  if (mood === "angry") {
+    svg.classList.add("irritated");
+    setOpenness(1);
+    setFrown(1);
+    requestAnimationFrame(trackIris);
+    return { soothe };
+  }
   if (intro && !reduceMotion) {
     wakeUp().then(idleBlinks);
   } else {
@@ -390,4 +569,5 @@ export function mountEye(slot, { intro = false, onOpen, onPoke } = {}) {
   }
   // Wait a frame so the eye is laid out before measuring it.
   requestAnimationFrame(trackIris);
+  return { soothe };
 }

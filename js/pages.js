@@ -1,4 +1,7 @@
 import { site, nav, about, projects, posts, photos } from "./content.js";
+import { mountEye } from "./eye.js";
+import { forgive } from "./rage.js";
+import { judgeApology } from "./apology.js";
 
 const capitalize = (word) => word[0].toUpperCase() + word.slice(1);
 
@@ -243,6 +246,67 @@ function notFound() {
         <p class="sub">The eye looked everywhere, but this page doesn't exist.</p>
         ${back("/", "Home")}
       </main>`,
+  };
+}
+
+// Shown instead of every page after the eye fires its laser, until the
+// lockout runs out or the visitor apologizes. `onFree` lets them back in.
+export function lockoutPage(until, onFree) {
+  return {
+    title: "Angered",
+    bare: true,
+    html: `
+      <main class="home lockout">
+        <span class="eye-slot lockout-eye"></span>
+        <h1>You have angered the eye.</h1>
+        <p class="tagline">It won't let you back in for <span class="countdown">5:00</span>. Or you could try apologizing.</p>
+        <form class="apology">
+          <input name="words" placeholder="Say something to the eye..." autocomplete="off" aria-label="Your apology" />
+          <button type="submit">Apologize</button>
+        </form>
+        <p class="eye-reply" aria-live="polite"></p>
+      </main>`,
+    mount(root) {
+      const eye = mountEye(root.querySelector(".lockout-eye"), { mood: "angry" });
+      const countdown = root.querySelector(".countdown");
+      const reply = root.querySelector(".eye-reply");
+      const form = root.querySelector(".apology");
+      let done = false;
+
+      async function release(message) {
+        if (done) return;
+        done = true;
+        forgive();
+        form.hidden = true;
+        reply.textContent = message;
+        await eye.soothe();
+        setTimeout(onFree, 1600);
+      }
+
+      const tick = () => {
+        if (!root.isConnected) return clearInterval(timer);
+        const left = Math.max(0, until - Date.now());
+        const s = Math.ceil(left / 1000);
+        countdown.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+        if (!left) {
+          clearInterval(timer);
+          release("The eye has calmed down. You may enter.");
+        }
+      };
+      const timer = setInterval(tick, 1000);
+      tick();
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const verdict = judgeApology(new FormData(form).get("words"));
+        if (verdict.ok) {
+          release("The eye accepts your apology.");
+        } else {
+          reply.textContent = verdict.reply;
+          form.reset();
+        }
+      });
+    },
   };
 }
 
