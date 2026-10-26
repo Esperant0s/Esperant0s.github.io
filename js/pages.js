@@ -12,7 +12,10 @@ const external = (label, href) =>
 const back = (href, label) =>
   `<a class="back" href="${href}"><span class="arrow" aria-hidden="true">←</span>${label}</a>`;
 
-const count = (title, n) => `<h1>${title}<span class="count">[${n}]</span></h1>`;
+const count = (title, n) => `<h1>${title}${n ? `<span class="count">[${n}]</span>` : ""}</h1>`;
+
+// Shown on a list page until it has entries.
+const empty = (what) => `<p class="sub empty">No ${what} yet. Check back soon.</p>`;
 
 // Placeholder art: a soft glow in the theme's accent colors, until real images
 // are added. `hue` just varies the blend so placeholders don't all match.
@@ -64,10 +67,11 @@ function aboutPage() {
         <h2>Links</h2>
         <ul class="plain">${about.links.map((l) => `<li>${external(l.label, l.href)}</li>`).join("")}</ul>
 
+        ${about.tech.length ? `
         <h2>Tech</h2>
         <ul class="plain mono">
           ${about.tech.map((t) => `<li>${t.label} <span class="dim">→</span> ${t.items.join(' <span class="dim">/</span> ')}</li>`).join("")}
-        </ul>
+        </ul>` : ""}
 
         <h2>Colophon</h2>
         <ul class="plain mono">
@@ -87,6 +91,7 @@ function projectsPage() {
     html: `
       <main class="page gallery">
         ${count("Projects", projects.length)}
+        ${projects.length ? "" : empty("projects")}
         <div class="card-grid">
           ${projects
             .map(
@@ -115,7 +120,7 @@ function projectPage(slug) {
         <p class="sub">${p.description}</p>
         <div class="hero">${thumb(p)}</div>
         <div class="content">${p.body}</div>
-        ${p.links.length ? `<ul class="plain">${p.links.map((l) => `<li>${external(l.label, l.href)}</li>`).join("")}</ul>` : ""}
+        ${p.links?.length ? `<ul class="plain">${p.links.map((l) => `<li>${external(l.label, l.href)}</li>`).join("")}</ul>` : ""}
       </main>`,
   };
 }
@@ -126,6 +131,7 @@ function blogPage() {
     html: `
       <main class="page">
         ${count("Blog", posts.length)}
+        ${posts.length ? "" : empty("posts")}
         <ul class="post-list">
           ${posts
             .map(
@@ -166,7 +172,8 @@ function photosPage() {
     html: `
       <main class="page gallery">
         ${count("Photos", photos.items.length)}
-        <p class="sub">${photos.caption}</p>
+        ${photos.caption ? `<p class="sub">${photos.caption}</p>` : ""}
+        ${photos.items.length ? "" : empty("photos")}
         <div class="masonry">
           ${photos.items
             .map((ph) =>
@@ -188,18 +195,19 @@ function contactPage() {
         <h1>Contact</h1>
         <p class="sub">Ways to get in touch.</p>
         <ul class="plain mono">
-          <li>Email <span class="dim">→</span> ${external(site.email, `mailto:${site.email}`)}
-            <button class="copy" data-copy="${site.email}" aria-label="Copy email">Copy</button></li>
-          <li>Discord <span class="dim">→</span> ${external(site.discord.label, site.discord.href)}</li>
+          ${site.email ? `<li>Email <span class="dim">→</span> ${external(site.email, `mailto:${site.email}`)}
+            <button class="copy" data-copy="${site.email}" aria-label="Copy email">Copy</button></li>` : ""}
+          ${about.links.map((l) => `<li>${external(l.label, l.href)}</li>`).join("")}
         </ul>
 
+        ${site.email ? `
         <h3>Contact form</h3>
         <form class="contact-form">
           <input name="name" placeholder="Name" autocomplete="name" />
           <input name="email" type="email" placeholder="Email (if you want a reply)" autocomplete="email" />
           <textarea name="message" placeholder="Your message..." rows="5" required></textarea>
           <button type="submit">Submit →</button>
-        </form>
+        </form>` : ""}
       </main>`,
     mount(root) {
       root.querySelectorAll(".copy").forEach((btn) =>
@@ -215,7 +223,7 @@ function contactPage() {
       );
 
       // No backend yet: hand the message to the visitor's email app.
-      root.querySelector(".contact-form").addEventListener("submit", (e) => {
+      root.querySelector(".contact-form")?.addEventListener("submit", (e) => {
         e.preventDefault();
         const data = new FormData(e.target);
         const subject = `Message from ${data.get("name") || "your site"}`;

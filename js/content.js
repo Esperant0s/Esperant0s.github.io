@@ -1,11 +1,11 @@
-// Everything you'd want to edit lives here. Swap the placeholder text, links
-// and images for your own.
+// Everything you'd want to edit lives here. Pages with nothing in them show a
+// short "nothing here yet" note until you add entries.
 
 export const site = {
   name: "Esper",
   tagline: "Hi, I'm Esper. I love making things that are unique and always watching.",
-  email: "hello@example.com",
-  discord: { label: "Esper", href: "https://discord.com/users/325884996311318538" },
+  // Add an address here to show it on the Contact page along with a message form.
+  email: "",
 };
 
 // Page addresses, in menu order. Order matters: it decides which way pages
@@ -17,94 +17,45 @@ export const about = {
     "Hello there, my name is Esper. I'm a software developer working remotely from around the globe. " +
     "I also go by the name Esper online. I'm interested in web and game development, art, AI, and a " +
     "whole list of other topics. I love making things that are unique and cool looking.",
+  // Also listed on the Contact page.
   links: [
     { label: "GitHub", href: "https://github.com/Esperant0s" },
     { label: "Instagram", href: "https://www.instagram.com/esperant0s/" },
     { label: "Discord", href: "https://discord.com/users/325884996311318538" },
     { label: "X/Twitter", href: "https://x.com/Esperant0s" },
   ],
-  tech: [
-    { label: "Languages", items: ["JavaScript", "TypeScript", "Python", "HTML", "CSS"] },
-    { label: "Frameworks", items: ["Svelte", "React"] },
-    { label: "Tools", items: ["VS Code", "Figma", "Claude Code"] },
-  ],
+  // Shown as a "Tech" section once filled in, e.g.
+  // { label: "Languages", items: ["JavaScript", "Python"] },
+  tech: [],
   stack: ["HTML", "CSS", "Vanilla JS"],
   fonts: ["Monocraft"],
 };
 
-// `hue` tints the placeholder thumbnail; replace it with `image: "/images/x.png"`.
-export const projects = [
-  {
-    slug: "pyre",
-    title: "Pyre",
-    description: "A placeholder project. Say what it does in one line.",
-    hue: 38,
-    body: "<p>Describe the project here: what problem it solves, how you built it, and what you learned.</p>",
-    links: [{ label: "GitHub", href: "https://github.com/Esperant0s" }],
-  },
-  {
-    slug: "ember-notes",
-    title: "Ember Notes",
-    description: "Another placeholder project.",
-    hue: 18,
-    body: "<p>Longer write-up for this project goes here.</p>",
-    links: [],
-  },
-  {
-    slug: "frenzy",
-    title: "Frenzy",
-    description: "A third placeholder project.",
-    hue: 50,
-    body: "<p>Longer write-up for this project goes here.</p>",
-    links: [],
-  },
-  {
-    slug: "kindling",
-    title: "Kindling",
-    description: "A fourth placeholder project.",
-    hue: 8,
-    body: "<p>Longer write-up for this project goes here.</p>",
-    links: [],
-  },
-];
+// Each project gets a card and its own page. Example entry:
+// {
+//   slug: "my-project",                       // its address: /projects/my-project
+//   title: "My Project",
+//   description: "What it does, in one line.",
+//   image: "/images/my-project.png",          // 16:9 works best; omit for a plain glow
+//   body: "<p>Longer write-up for its own page.</p>",
+//   links: [{ label: "GitHub", href: "https://github.com/..." }],
+// },
+export const projects = [];
 
-// `kind` picks the icon: "code", "note" or "web".
-export const posts = [
-  {
-    slug: "hello-world",
-    title: "Hello, World",
-    date: "2026-10-26",
-    kind: "note",
-    description: "The first post on this site.",
-    body: `
-      <p>This is a placeholder post. Write in plain HTML here, or move posts into separate files later.</p>
-      <h2>A heading</h2>
-      <p>Use headings, <a href="https://example.com">links</a>, <code>code</code> and lists:</p>
-      <ul><li>One</li><li>Two</li></ul>
-    `,
-  },
-  {
-    slug: "building-this-site",
-    title: "Building This Site",
-    date: "2026-10-20",
-    kind: "code",
-    description: "How the burning eye and sliding pages work.",
-    body: `
-      <p>Pages slide sideways when you move along the menu, and up or down when you go deeper or back out.</p>
-      <p>The eye follows your cursor, and the background is a field of text characters that shifts like heat.</p>
-    `,
-  },
-];
+// Each post gets a row on the Blog page and its own page. Example entry:
+// {
+//   slug: "my-post",                          // its address: /blog/my-post
+//   title: "My Post",
+//   date: "2026-10-26",
+//   kind: "note",                             // icon: "code", "note" or "web"
+//   description: "One-line summary.",
+//   body: `<p>The post, in plain HTML.</p>`,
+// },
+export const posts = [];
 
-// `ratio` is width / height; replace `hue` with `src: "/photos/x.jpg"` for real photos.
+// Put photos in a /photos folder and list them here. Example entry:
+// { src: "/photos/sunset.jpg", alt: "Sunset over the harbor" },
 export const photos = {
-  caption: "A few photos. Add yours to the photos folder and list them in content.js.",
-  items: [
-    { ratio: 3 / 4, hue: 30 },
-    { ratio: 4 / 3, hue: 12 },
-    { ratio: 1, hue: 45 },
-    { ratio: 3 / 4, hue: 20 },
-    { ratio: 4 / 3, hue: 5 },
-    { ratio: 3 / 4, hue: 40 },
-  ],
+  caption: "",
+  items: [],
 };
