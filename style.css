@@ -474,6 +474,73 @@ p {
   opacity: 0.8;
 }
 
+.eye .flush {
+  /* Blood red, nudged toward the theme so it still fits every palette. */
+  fill: color-mix(in srgb, #d40f2a 75%, var(--eye-red));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.eye .angry-veins {
+  fill: none;
+  stroke: color-mix(in srgb, #c80a24 80%, var(--eye-red));
+  stroke-width: 0.85;
+  stroke-linecap: round;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.eye .upper-lid {
+  /* skin the color of the eyeball's shadowed edge, so the lid reads as
+     part of the eye pressing down */
+  fill: color-mix(in srgb, var(--eye-tan-dark) 80%, var(--eye-ink));
+}
+
+.eye .frown {
+  pointer-events: none;
+}
+
+.eye .frown path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.eye .frown .lid-line {
+  stroke: var(--eye-ink);
+  stroke-width: 3.6;
+}
+
+.eye .frown .lid-glow {
+  stroke: var(--eye-coral);
+  stroke-width: 0.9;
+}
+
+/* Irritated (after a click): a red flush, bloodshot veins, a frown (set in eye.js) and
+   a little shake in the spikes. */
+.eye.irritated .flush {
+  opacity: 0.25;
+}
+
+.eye.irritated .angry-veins {
+  opacity: 1;
+}
+
+.eye.irritated .vein {
+  stroke-width: 1;
+}
+
+.eye.irritated .burst {
+  animation: shake 0.12s linear infinite;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(0.6px, -0.4px); }
+  50% { transform: translate(-0.5px, 0.5px); }
+  75% { transform: translate(0.4px, 0.3px); }
+}
+
 .eye .fibres {
   fill: none;
   stroke: var(--eye-gold);

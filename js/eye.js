@@ -114,22 +114,47 @@ function buildIris() {
   return { spiral: `M${spiral.join(" L")}`, fibres: fibres.join(" ") };
 }
 
+// Bloodshot veins for when the eye is irritated: red threads creeping in from
+// the edge of the eyeball toward the iris, each with a small side branch.
+function buildAngryVeins() {
+  const rnd = seeded(23);
+  const veins = [];
+  for (let k = 0; k < 14; k++) {
+    const a = (k / 14) * Math.PI * 2 + (rnd() - 0.5) * 0.3;
+    const edge = eyeRadius(a);
+    const [x1, y1] = polar(a, edge + 1);
+    const [xm, ym] = polar(a + (rnd() - 0.5) * 0.35, edge * 0.75);
+    const [x2, y2] = polar(a + (rnd() - 0.5) * 0.3, 11 + rnd() * 4);
+    veins.push(`M${f(x1)} ${f(y1)} Q${f(xm)} ${f(ym)} ${f(x2)} ${f(y2)}`);
+    const [bx, by] = polar(a + (rnd() < 0.5 ? -1 : 1) * (0.25 + rnd() * 0.2), edge * 0.7);
+    veins.push(`M${f(xm)} ${f(ym)} L${f(bx)} ${f(by)}`);
+  }
+  return veins.join(" ");
+}
+
 let shapes;
 
 // Builds a spiked, slit-pupilled eye inside `slot`. It keeps blinking and
 // tracking the cursor until it is removed from the page.
 //   intro:  play the slow wake-up sequence instead of starting open
 //   onOpen: called with the eye's centre (in viewport px) once it is fully open
-//   onPoke: if given, clicking the eye makes it blink, then calls this with
-//           the eye's centre
+//   onPoke: if given, clicking the eye irritates it (rapid blinks, bloodshot
+//           veins, an angry squint), then calls this with the eye's centre
 export function mountEye(slot, { intro = false, onOpen, onPoke } = {}) {
-  shapes ??= { burst: buildBurst(), iris: buildIris() };
-  const { burst, iris: irisShape } = shapes;
+  shapes ??= { burst: buildBurst(), iris: buildIris(), angryVeins: buildAngryVeins() };
+  const { burst, iris: irisShape, angryVeins } = shapes;
   const id = `eye-clip-${++count}`;
 
   slot.innerHTML = `
     <svg class="eye" viewBox="0 0 100 160" role="img" aria-label="Esper logo: a spiked, burning eye">
-      <defs><clipPath id="${id}"><path class="lid" /></clipPath></defs>
+      <defs>
+        <clipPath id="${id}"><path class="lid" /></clipPath>
+        <!-- Hides the eye's outline wherever the frowning lid covers it. -->
+        <mask id="${id}-frown" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="160">
+          <rect width="100" height="160" fill="white" />
+          <path class="frown-mask" fill="black" />
+        </mask>
+      </defs>
       <g class="burst">
         <path class="halo" d="${burst.d}" />
         <g filter="url(#flicker)">
@@ -139,7 +164,9 @@ export function mountEye(slot, { intro = false, onOpen, onPoke } = {}) {
       </g>
       <path class="lid sclera" />
       <g clip-path="url(#${id})">
+        <path class="lid flush" />
         <path class="vein" d="M50 53 q-3 8 -1 14 M50 107 q3 -7 0 -13 M46 56 q1 6 3 10 M54 104 q-1 -5 -3 -9" />
+        <path class="angry-veins" d="${angryVeins}" />
         <g class="iris">
           <g transform="translate(${CX} ${CY}) scale(${IRIS_SCALE}) translate(${-CX} ${-CY})">
             <circle cx="${CX}" cy="${CY}" r="13" fill="url(#iris-fill)" />
@@ -149,8 +176,14 @@ export function mountEye(slot, { intro = false, onOpen, onPoke } = {}) {
             <path class="pupil" />
           </g>
         </g>
+        <path class="upper-lid" />
       </g>
-      <path class="lid outline" />
+      <path class="lid outline" mask="url(#${id}-frown)" />
+      <!-- The frown: a heavy V-shaped lid line. -->
+      <g class="frown">
+        <path class="lid-line" />
+        <path class="lid-glow" />
+      </g>
     </svg>`;
 
   const svg = slot.querySelector("svg");
@@ -158,6 +191,10 @@ export function mountEye(slot, { intro = false, onOpen, onPoke } = {}) {
   const iris = svg.querySelector(".iris");
   const pupil = svg.querySelector(".pupil");
   const burstEl = svg.querySelector(".burst");
+  const upperLid = svg.querySelector(".upper-lid");
+  const frownEl = svg.querySelector(".frown");
+  const [lidLine, lidGlow] = frownEl.querySelectorAll("path");
+  const frownMask = svg.querySelector(".frown-mask");
   const alive = () => svg.isConnected;
 
   // openness: 0 = shut, 1 = fully open. The eye stands upright, so the lids
@@ -171,6 +208,35 @@ export function mountEye(slot, { intro = false, onOpen, onPoke } = {}) {
     const slit = 1.4 + (1 - o) * 1.6;
     pupil.setAttribute("d", `M${CX} ${CY - 11} Q${CX + slit * 2} ${CY} ${CX} ${CY + 11} Q${CX - slit * 2} ${CY} ${CX} ${CY - 11} Z`);
     burstEl.style.opacity = 0.75 + o * 0.25;
+  }
+
+  // frown: 0 = relaxed, 1 = full scowl. The upper lid drops into a sharp V
+  // that cuts across the top of the eye and over the iris, with a heavy line
+  // along its edge, like an angry cartoon eye. The eye's own outline is masked
+  // out above the V so it doesn't show through the lid.
+  function setFrown(amount) {
+    const top = CY - EYE_H;
+    const vertex = top + 22 * amount; // the V's point, pressing down the middle
+    const ends = top + 6 * amount; // its outer ends, just past the eye's edges
+    const v = `M${CX - 20} ${f(ends)} L${CX} ${f(vertex)} L${CX + 20} ${f(ends)}`;
+    const cover = `M${CX - 20} ${top - 10} L${CX + 20} ${top - 10} L${CX + 20} ${f(ends)} L${CX} ${f(vertex)} L${CX - 20} ${f(ends)} Z`;
+    upperLid.setAttribute("d", cover);
+    frownMask.setAttribute("d", amount > 0.01 ? cover : "");
+    lidLine.setAttribute("d", v);
+    lidGlow.setAttribute("d", v);
+    frownEl.style.opacity = Math.min(1, amount * 3);
+  }
+
+  function animate(from, to, ms, apply) {
+    return new Promise((resolve) => {
+      const start = performance.now();
+      function step(now) {
+        const t = Math.min((now - start) / ms, 1);
+        apply(from + (to - from) * ease(t));
+        t < 1 ? requestAnimationFrame(step) : resolve();
+      }
+      requestAnimationFrame(step);
+    });
   }
 
   function animateOpenness(from, to, ms) {
@@ -220,10 +286,16 @@ export function mountEye(slot, { intro = false, onOpen, onPoke } = {}) {
     await blink();
   }
 
+  // No idle blinking while the cursor is over the eye: it holds your gaze.
+  let hovering = false;
+  svg.addEventListener("pointerenter", () => (hovering = true));
+  svg.addEventListener("pointerleave", () => (hovering = false));
+
   async function idleBlinks() {
     while (alive()) {
       await wait(6000 + Math.random() * 6000);
       if (!alive()) break;
+      if (hovering) continue;
       await blink();
       if (Math.random() < 0.1) await blink(); // rare double blink
     }
@@ -263,11 +335,42 @@ export function mountEye(slot, { intro = false, onOpen, onPoke } = {}) {
     svg.classList.add("pokeable");
     svg.setAttribute("role", "button");
     svg.setAttribute("tabindex", "0");
-    svg.setAttribute("aria-label", "Esper logo: a spiked, burning eye. Click to make it blink.");
+    svg.setAttribute("aria-label", "Esper logo: a spiked, burning eye. Click to annoy it.");
+    // Clicking irritates the eye: it scowls right away (a V-shaped frown and
+    // bloodshot veins) while blinking rapidly and sending out the background
+    // wave, then holds the scowl for a couple of seconds. Clicking again while it's irritated sends another wave and
+    // keeps it annoyed for longer.
+    const SQUINT = 0.8; // the frown does most of the work, so only a slight squint
+    const ANNOYED_MS = 1800; // how long the scowl holds after it appears
+    let irritated = false;
+    let calmAt = 0;
+
     const poke = async () => {
-      if (busy) return;
-      if (!reduceMotion) await blink();
+      calmAt = performance.now() + ANNOYED_MS;
+      if (irritated) return onPoke(centre());
+      irritated = true;
+      // React immediately: the scowl, veins and wave start on the click itself.
+      svg.classList.add("irritated");
       onPoke(centre());
+      const scowl = reduceMotion ? setFrown(1) : animate(0, 1, 120, setFrown);
+      while (busy) await wait(20); // let an idle blink or the intro finish
+      busy = true;
+      if (!reduceMotion) {
+        for (let k = 0; k < 3; k++) {
+          await animateOpenness(1, 0, 40);
+          await animateOpenness(0, 1, 55);
+        }
+        await Promise.all([scowl, animateOpenness(1, SQUINT, 140)]);
+      }
+      // Count the hold from when the scowl is actually showing, so it always
+      // gets its full time even if the blinks ran slowly.
+      calmAt = Math.max(calmAt, performance.now() + ANNOYED_MS);
+      while (performance.now() < calmAt) await wait(100);
+      svg.classList.remove("irritated");
+      if (reduceMotion) setFrown(0);
+      else await Promise.all([animateOpenness(SQUINT, 1, 450), animate(1, 0, 450, setFrown)]);
+      busy = false;
+      irritated = false;
     };
     svg.addEventListener("click", poke);
     svg.addEventListener("keydown", (e) => {
@@ -278,6 +381,7 @@ export function mountEye(slot, { intro = false, onOpen, onPoke } = {}) {
     });
   }
 
+  setFrown(0);
   if (intro && !reduceMotion) {
     wakeUp().then(idleBlinks);
   } else {
