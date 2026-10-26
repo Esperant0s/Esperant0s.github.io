@@ -1,0 +1,43 @@
+# Publishes the site to GitHub Pages every time you push to main.
+# One-time setup on GitHub: Settings → Pages → Source → "GitHub Actions".
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # lets you re-run it by hand from the Actions tab
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Collect the site files
+        run: |
+          rsync -a --exclude .git --exclude .github --exclude .claude --exclude serve.py --exclude README.md ./ _site/
+          # GitHub Pages can't send every address to index.html. Serving the
+          # site as the 404 page means links like /about or /blog/hello-world
+          # still load it, and the page router then shows the right page.
+          cp index.html _site/404.html
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

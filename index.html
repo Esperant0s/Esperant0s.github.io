@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Esper</title>
+    <meta name="description" content="Esper's personal site." />
+    <!-- Apply the saved theme before anything paints, so there's no flash of the default. -->
+    <script>
+      try {
+        const theme = localStorage.getItem("theme");
+        if (theme) document.documentElement.dataset.theme = theme;
+      } catch {}
+    </script>
+    <link rel="preload" href="/fonts/Monocraft.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="stylesheet" href="/style.css" />
+    <script type="module" src="/js/main.js"></script>
+  </head>
+  <body>
+    <!-- Shared paint for every eye on the page. Kept rendered (not display:none)
+         so the filters still work when referenced. -->
+    <svg class="defs" aria-hidden="true" width="0" height="0">
+      <defs>
+        <!-- Warm tan eyeball, darker toward the corners. -->
+        <radialGradient id="sclera-fill" cx="50%" cy="45%" r="60%">
+          <stop offset="0%" style="stop-color: var(--eye-tan-light)" />
+          <stop offset="65%" style="stop-color: var(--eye-tan)" />
+          <stop offset="100%" style="stop-color: var(--eye-tan-dark)" />
+        </radialGradient>
+
+        <!-- Coral iris, glowing hotter toward the pupil. -->
+        <radialGradient id="iris-fill" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" style="stop-color: var(--eye-gold)" />
+          <stop offset="35%" style="stop-color: var(--eye-coral-light)" />
+          <stop offset="85%" style="stop-color: var(--eye-coral)" />
+          <stop offset="100%" style="stop-color: var(--eye-red)" />
+        </radialGradient>
+
+        <!-- Spikes: tan near the eye, burning down to deep red at the tips. -->
+        <radialGradient id="burst-fill" gradientUnits="userSpaceOnUse" cx="50" cy="80" r="80">
+          <stop offset="0%" style="stop-color: var(--eye-tan-light)" />
+          <stop offset="30%" style="stop-color: var(--eye-tan)" />
+          <stop offset="60%" style="stop-color: var(--eye-red)" />
+          <stop offset="100%" style="stop-color: var(--eye-maroon)" />
+        </radialGradient>
+
+        <!-- Animated noise makes the spike edges waver like flames. -->
+        <filter id="flicker" x="-10%" y="-10%" width="120%" height="120%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="4" result="noise">
+            <animate attributeName="baseFrequency" dur="3s" values="0.05;0.08;0.06;0.05" repeatCount="indefinite" />
+          </feTurbulence>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+
+        <!-- Soft warm glow behind the whole burst. -->
+        <filter id="halo" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="6" />
+        </filter>
+      </defs>
+    </svg>
+
+    <canvas id="field" aria-hidden="true"></canvas>
+
+    <header id="site-header">
+      <a class="brand" href="/" aria-label="Esper home">
+        <span class="eye-slot"></span>
+        <span class="name">Esper</span>
+      </a>
+      <nav id="site-nav"></nav>
+    </header>
+
+    <div id="view"></div>
+
+    <div id="theme-picker"></div>
+  </body>
+</html>

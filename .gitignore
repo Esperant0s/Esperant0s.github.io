@@ -1,0 +1,5 @@
+# Local editor/preview settings
+.claude/
+
+# Python cache from serve.py
+__pycache__/
