@@ -24,9 +24,12 @@ export const about = {
     { label: "Discord", href: "https://discord.com/users/325884996311318538" },
     { label: "X/Twitter", href: "https://x.com/Esperant0s" },
   ],
-  // Shown as a "Tech" section once filled in, e.g.
-  // { label: "Languages", items: ["JavaScript", "Python"] },
-  tech: [],
+  // The "Tech" section; it's hidden if this list is empty.
+  tech: [
+    { label: "Languages", items: ["JavaScript", "TypeScript", "Python", "HTML", "CSS"] },
+    { label: "Frameworks", items: ["Svelte", "React"] },
+    { label: "Tools", items: ["VS Code", "Figma", "Claude Code"] },
+  ],
   stack: ["HTML", "CSS", "Vanilla JS"],
   fonts: ["Monocraft"],
 };
