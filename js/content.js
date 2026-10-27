@@ -43,7 +43,43 @@ export const about = {
 //   body: "<p>Longer write-up for its own page.</p>",
 //   links: [{ label: "GitHub", href: "https://github.com/..." }],
 // },
-export const projects = [];
+export const projects = [
+  {
+    slug: "nova-player",
+    title: "Nova Player",
+    description: "A Netflix-style IPTV player for Samsung smart TVs.",
+    image: "/images/nova-player.jpg",
+    body: `
+      <p>Nova Player is an IPTV app I built for my Samsung TV. I wanted something that feels like a
+      streaming service instead of a spreadsheet of channels, so it's designed to be used from the couch
+      with nothing but the TV remote.</p>
+
+      <h2>What it does</h2>
+      <p>You sign in with an Xtream Codes account or an M3U playlist from your IPTV provider, and Nova turns
+      it into a library you'd actually want to browse: a big billboard for whatever you're looking at, rows
+      for Continue Watching, My List and Recently Added, and a row for every category. There's also a demo
+      library, so you can try it without an account.</p>
+      <ul>
+        <li><strong>Movies and series</strong> with resume, a next-episode countdown, and menus for audio,
+        subtitles, quality, speed and picture fit. It remembers your language choices.</li>
+        <li><strong>Live TV</strong> with a guide showing what's on now and next, instant channel zapping,
+        typing a channel number, jumping back to the previous channel, and favourites.</li>
+        <li><strong>Region filters</strong> that sort a huge catalogue into Arabic, Western, Turkish, Korean,
+        Japanese, Anime, Kids, Sports and more, using category names, cast names and movie info.</li>
+        <li><strong>Instant search</strong> with an on-screen keyboard.</li>
+      </ul>
+
+      <h2>How it's built</h2>
+      <p>It's plain HTML, CSS and JavaScript packaged as a Tizen web app, with no framework. The library is
+      cached on the TV, so the app opens instantly and refreshes in the background, and only the cards on
+      screen are drawn, so a 50,000-title catalogue scrolls as smoothly as a small one. On the TV it plays
+      through Samsung's built-in video player, which handles live streams, HLS and MKV with hardware
+      decoding. On a computer it runs in the browser, with a small local server that gets around CORS for
+      testing.</p>
+    `,
+    links: [{ label: "GitHub", href: "https://github.com/Esperant0s/nova-player" }],
+  },
+];
 
 // Each post gets a row on the Blog page and its own page. Example entry:
 // {
