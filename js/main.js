@@ -5,12 +5,14 @@ import { burstAt } from "./field.js";
 import { reduceMotion } from "./pointer.js";
 import { mountThemePicker } from "./themes.js";
 import { blast, lockedUntil } from "./rage.js";
+import { mountMotionToggle } from "./motion.js";
 
 const view = document.getElementById("view");
 const header = document.getElementById("site-header");
 document.getElementById("site-nav").innerHTML = nav.map(navLink).join("");
 mountEye(header.querySelector(".eye-slot"));
 mountThemePicker(document.getElementById("theme-picker"));
+mountMotionToggle(document.getElementById("motion-toggle"));
 
 let currentPath = normalise(location.pathname);
 let firstRender = true;
@@ -59,8 +61,12 @@ function render(path, { animate = true } = {}) {
   header.classList.toggle("hidden", !!bare);
   if (firstRender) requestAnimationFrame(() => requestAnimationFrame(() => (header.style.transition = "")));
   header.inert = !!bare;
+  // Mark the current page for screen readers too, not just with color.
   document.querySelectorAll("#site-nav a").forEach((a) => {
-    a.classList.toggle("current", path.startsWith(a.getAttribute("href")));
+    const current = path.startsWith(a.getAttribute("href"));
+    a.classList.toggle("current", current);
+    if (current) a.setAttribute("aria-current", "page");
+    else a.removeAttribute("aria-current");
   });
 
   // Drop any page still leaving from a previous quick click.
@@ -103,8 +109,19 @@ function render(path, { animate = true } = {}) {
     else img.addEventListener("load", () => img.classList.add("loaded"), { once: true });
   });
 
+  // After moving to another page, put keyboard and screen-reader focus on its
+  // heading, so the new page is announced and Tab starts from there.
+  if (!firstRender) focusHeading(el);
+
   currentPath = path;
   firstRender = false;
+}
+
+function focusHeading(root = view.querySelector(".screen:not(.leaving)")) {
+  const heading = root?.querySelector("h1");
+  if (!heading) return;
+  heading.tabIndex = -1;
+  heading.focus({ preventScroll: true });
 }
 
 function go(path) {
@@ -115,9 +132,15 @@ function go(path) {
 }
 
 // Handle same-site links ourselves so pages can slide instead of reloading.
+// The "Skip to content" link jumps focus to the current page's heading.
+document.querySelector(".skip-link").addEventListener("click", (e) => {
+  e.preventDefault();
+  focusHeading();
+});
+
 document.addEventListener("click", (e) => {
   const a = e.target.closest("a");
-  if (!a || a.target || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  if (!a || a.target || a.getAttribute("href").startsWith("#") || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
   const url = new URL(a.href, location.href);
   if (url.origin !== location.origin || url.protocol === "mailto:") return;
   e.preventDefault();

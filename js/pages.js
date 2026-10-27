@@ -206,10 +206,10 @@ function contactPage() {
         ${site.email ? `
         <h3>Contact form</h3>
         <form class="contact-form">
-          <input name="name" placeholder="Name" autocomplete="name" />
-          <input name="email" type="email" placeholder="Email (if you want a reply)" autocomplete="email" />
-          <textarea name="message" placeholder="Your message..." rows="5" required></textarea>
-          <button type="submit">Submit →</button>
+          <label>Name <input name="name" autocomplete="name" /></label>
+          <label>Email <span class="dim">(if you want a reply)</span> <input name="email" type="email" autocomplete="email" /></label>
+          <label class="full">Message <textarea name="message" rows="5" required></textarea></label>
+          <button class="full" type="submit">Submit →</button>
         </form>` : ""}
       </main>`,
     mount(root) {

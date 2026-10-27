@@ -4,7 +4,28 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Esper</title>
-    <meta name="description" content="Esper's personal site." />
+    <meta name="description" content="Esper's personal site: a software developer who loves making things that are unique and always watching." />
+    <meta name="theme-color" content="#0A0A0A" />
+
+    <!-- Tab, bookmark and home-screen icons (made by scripts/make-icons.mjs). -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+
+    <!-- Link previews on Discord, X, iMessage, Slack and the like. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Esper" />
+    <meta property="og:title" content="Esper" />
+    <meta property="og:description" content="I love making things that are unique and always watching." />
+    <meta property="og:url" content="https://esperant0s.github.io/" />
+    <meta property="og:image" content="https://esperant0s.github.io/icons/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="A spiked, burning eye beside the name Esper." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Esper" />
+    <meta name="twitter:description" content="I love making things that are unique and always watching." />
+    <meta name="twitter:image" content="https://esperant0s.github.io/icons/og.png" />
     <!-- Apply the saved theme before anything paints, so there's no flash of the default. -->
     <script>
       try {
@@ -17,6 +38,8 @@
     <script type="module" src="/js/main.js"></script>
   </head>
   <body>
+    <a class="skip-link" href="#view">Skip to content</a>
+
     <!-- Shared paint for every eye on the page. Kept rendered (not display:none)
          so the filters still work when referenced. -->
     <svg class="defs" aria-hidden="true" width="0" height="0">
@@ -71,6 +94,10 @@
 
     <div id="view"></div>
 
-    <div id="theme-picker"></div>
+    <!-- Bottom-right controls: pause animations, and the theme menu. -->
+    <div class="corner">
+      <button id="motion-toggle" class="corner-button" type="button"></button>
+      <div id="theme-picker"></div>
+    </div>
   </body>
 </html>

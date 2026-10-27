@@ -143,7 +143,19 @@ function draw(now) {
   }
 }
 
+// Paused by the visitor (the pause-motion button): the field freezes on its
+// current frame until resumed.
+let paused = false;
+
+export function setPaused(value) {
+  if (value === paused) return;
+  paused = value;
+  bursts = [];
+  if (!paused && !reduceMotion) requestAnimationFrame(loop);
+}
+
 function loop(now) {
+  if (paused) return;
   const interval = bursts.length ? BURST_FRAME_MS : IDLE_FRAME_MS;
   if (now - lastFrame >= interval) {
     draw(now);
@@ -154,7 +166,7 @@ function loop(now) {
 
 // Send a ring of light across the field from (x, y) in viewport pixels.
 export function burstAt(x, y) {
-  if (reduceMotion) return;
+  if (reduceMotion || paused) return;
   bursts.push({ x, y, start: performance.now() });
 }
 

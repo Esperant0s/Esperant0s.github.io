@@ -27,7 +27,7 @@ jobs:
 
       - name: Collect the site files
         run: |
-          rsync -a --exclude .git --exclude .github --exclude .claude --exclude serve.py --exclude README.md ./ _site/
+          rsync -a --exclude .git --exclude .github --exclude .claude --exclude serve.py --exclude README.md --exclude scripts ./ _site/
           # GitHub Pages can't send every address to index.html. Serving the
           # site as the 404 page means links like /about or /blog/hello-world
           # still load it, and the page router then shows the right page.

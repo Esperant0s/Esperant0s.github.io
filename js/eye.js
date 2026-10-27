@@ -134,6 +134,13 @@ function buildAngryVeins() {
 
 let shapes;
 
+// The eye's fixed geometry, for drawing it outside the page (the favicon and
+// link-preview generator in scripts/make-icons.mjs uses this).
+export function eyeGeometry() {
+  shapes ??= { burst: buildBurst(), iris: buildIris(), angryVeins: buildAngryVeins() };
+  return { CX, CY, EYE_W, EYE_H, IRIS_SCALE, burst: shapes.burst, iris: shapes.iris };
+}
+
 // Builds a spiked, slit-pupilled eye inside `slot`. It keeps blinking and
 // tracking the cursor until it is removed from the page.
 //   intro:  play the slow wake-up sequence instead of starting open
@@ -411,7 +418,10 @@ export function mountEye(slot, { intro = false, onOpen, onPoke, onRage, mood } =
     svg.classList.add("pokeable");
     svg.setAttribute("role", "button");
     svg.setAttribute("tabindex", "0");
-    svg.setAttribute("aria-label", "Esper logo: a spiked, burning eye. Click to annoy it, or stroke it to pet it.");
+    svg.setAttribute(
+      "aria-label",
+      "Esper logo: a spiked, burning eye. Click or press Enter to annoy it; stroke it or use the arrow keys to pet it."
+    );
     // Clicking irritates the eye: it scowls right away (a V-shaped frown and
     // bloodshot veins) while blinking rapidly and sending out the background
     // wave, then holds the scowl for a couple of seconds. Clicking again while
@@ -483,7 +493,13 @@ export function mountEye(slot, { intro = false, onOpen, onPoke, onRage, mood } =
     svg.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        poke();
+        // A held-down key repeats fast enough to look like rapid clicks and
+        // fire the laser by accident, so only fresh presses count.
+        if (!e.repeat) poke();
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        // Keyboard petting: each arrow press is a stroke.
+        e.preventDefault();
+        pet(performance.now());
       }
     });
 
@@ -514,18 +530,23 @@ export function mountEye(slot, { intro = false, onOpen, onPoke, onRage, mood } =
       }
       const now = performance.now();
       turns = turns.filter((t) => now - t < 1200);
-      if (turns.length >= 3) {
-        lastPet = now;
-        clicks = []; // petting forgives recent clicks
-        if (irritated) calmAt = now; // and calms an annoyed eye
-        happyTarget = 1;
-        moveHappiness();
-        if (now - lastHeart > 300 && !reduceMotion) {
-          lastHeart = now;
-          heart();
-        }
-      }
+      if (turns.length >= 3) pet(now);
     });
+
+    function pet(now) {
+      if (raging) return;
+      lastPet = now;
+      clicks = []; // petting forgives recent clicks
+      if (irritated) calmAt = now; // and calms an annoyed eye
+      happyTarget = 1;
+      moveHappiness();
+      // No hearts while the visitor has paused animations (see motion.js).
+      const still = reduceMotion || document.documentElement.classList.contains("motion-paused");
+      if (now - lastHeart > 300 && !still) {
+        lastHeart = now;
+        heart();
+      }
+    }
     svg.addEventListener("pointerleave", () => {
       lastX = null;
       turns = [];

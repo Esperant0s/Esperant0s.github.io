@@ -28,8 +28,13 @@
 
   /* Everything below is worked out from the base colors. */
   --text-0: color-mix(in srgb, var(--text) 60%, white);
-  --muted: color-mix(in srgb, var(--text) 55%, var(--bg));
-  --dim: color-mix(in srgb, var(--text) 30%, var(--bg));
+  /* Text levels chosen to pass WCAG AA contrast (4.5:1) in every theme. */
+  --muted: color-mix(in srgb, var(--text) 65%, var(--bg));
+  --dim: color-mix(in srgb, var(--text) 58%, var(--bg));
+  /* Borders of inputs and buttons: at least 3:1 against what's around them. */
+  --line: color-mix(in srgb, var(--text) 45%, var(--bg-2));
+  /* The accent, when it's used as text. A few themes lighten it to stay readable. */
+  --accent-text: var(--accent);
   --flame-core: color-mix(in srgb, var(--accent) 40%, white);
   --flame-hot: var(--accent);
   --flame-mid: var(--accent-2);
@@ -76,6 +81,7 @@
 }
 
 [data-theme="midnight-jewel"] {
+  --accent-text: color-mix(in srgb, #DC2F02 80%, white);
   --bg: #03071E;
   --bg-2: #1A0618;
   --bg-3: #370617;
@@ -106,6 +112,7 @@
 }
 
 [data-theme="github-dim"] {
+  --accent-text: color-mix(in srgb, #539BF5 85%, white);
   --bg: #22272E;
   --bg-2: #2D333B;
   --bg-3: #373E47;
@@ -262,6 +269,32 @@ p {
   pointer-events: none;
 }
 
+/* ---------- accessibility helpers ---------- */
+
+/* Hidden until a keyboard user tabs to it. */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 50;
+  padding: 0.6rem 1rem;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--accent-text);
+  font-family: var(--mono);
+  transform: translateY(-200%);
+  transition: transform 0.15s;
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+/* Headings get focus when you change pages; no ring needed for that. */
+h1[tabindex="-1"]:focus {
+  outline: none;
+}
+
 /* ---------- header (inner pages only) ---------- */
 
 #site-header {
@@ -310,7 +343,9 @@ p {
 }
 
 #site-nav a.current {
-  color: var(--accent);
+  color: var(--accent-text);
+  text-decoration: underline 2px;
+  text-underline-offset: 0.3em;
 }
 
 /* ---------- page container + transitions ---------- */
@@ -359,7 +394,7 @@ p {
 }
 
 .count {
-  color: var(--bg-3);
+  color: var(--muted);
   font-weight: 400;
   margin-left: 0.15em;
 }
@@ -634,6 +669,7 @@ p {
 /* Links must be inline-block: transforms are ignored on plain inline elements. */
 .nav-link {
   display: inline-block;
+  padding-block: 0.2em; /* taller tap target (at least 24px) */
   transition: color 0.2s, transform 0.25s ease, text-shadow 0.25s;
 }
 
@@ -655,14 +691,14 @@ p {
 }
 
 .nav-link .arrow {
-  color: var(--accent);
+  color: var(--accent-text);
   opacity: 0;
   transform: translateX(-0.35em);
 }
 
 .nav-link:hover,
 .nav-link:focus-visible {
-  color: var(--accent);
+  color: var(--accent-text);
   transform: translateX(0.25em);
   text-shadow: 0 0 10px color-mix(in srgb, var(--flame-mid) 55%, transparent);
 }
@@ -681,6 +717,7 @@ p {
 
 .external {
   font-family: var(--mono);
+  padding-block: 0.35em; /* taller tap target; inline padding doesn't move the text */
   text-decoration: underline transparent 2px;
   text-underline-offset: 3px;
   transition: text-decoration-color 0.2s, color 0.2s;
@@ -694,7 +731,7 @@ p {
 }
 
 .external:hover {
-  color: var(--accent);
+  color: var(--accent-text);
   text-decoration-color: currentColor;
 }
 
@@ -704,6 +741,7 @@ p {
 
 .back {
   display: inline-block;
+  padding-block: 0.2em;
   font-family: var(--mono);
   font-size: 1.3rem;
   margin-top: 1rem;
@@ -716,7 +754,7 @@ p {
 }
 
 .back:hover {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .back:hover .arrow {
@@ -781,7 +819,7 @@ ul.plain li {
   position: absolute;
   inset: 0;
   z-index: -1;
-  border: 2px solid var(--bg-3);
+  border: 2px solid var(--line);
   opacity: 0;
   transition: inset 0.1s, opacity 0.1s;
 }
@@ -860,7 +898,7 @@ img.fade.loaded {
 }
 
 .post-list a:hover .post-title {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .icon {
@@ -896,7 +934,7 @@ img.fade.loaded {
 
 .content a {
   font-weight: 600;
-  text-decoration: underline var(--dim) 2px;
+  text-decoration: underline var(--muted) 2px;
   text-underline-offset: 3px;
   transition: text-decoration-color 0.2s;
 }
@@ -918,17 +956,18 @@ img.fade.loaded {
 /* ---------- contact ---------- */
 
 .copy {
+  min-height: 1.75rem; /* at least 24px to tap */
   margin-left: 0.6rem;
   padding: 0.1rem 0.5rem;
   font-size: 0.8rem;
   background: var(--bg-2);
-  border: 1px solid var(--bg-3);
+  border: 1px solid var(--line);
   color: var(--muted);
   cursor: pointer;
 }
 
 .copy:hover {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .contact-form {
@@ -945,15 +984,30 @@ img.fade.loaded {
   width: 100%;
   min-width: 0;
   background: var(--bg-2);
-  border: 1px solid var(--bg-3);
+  border: 1px solid var(--line);
   padding: 0.8rem 1rem;
   outline: none;
   transition: border-color 0.2s;
 }
 
-.contact-form textarea,
-.contact-form button {
+.contact-form label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.contact-form label > input,
+.contact-form label > textarea {
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.contact-form .full {
   grid-column: 1 / -1;
+}
+
+.contact-form textarea {
   resize: vertical;
 }
 
@@ -968,7 +1022,7 @@ img.fade.loaded {
 }
 
 .contact-form button:hover {
-  color: var(--accent);
+  color: var(--accent-text);
   border-color: var(--flame-mid);
 }
 
@@ -1006,7 +1060,7 @@ img.fade.loaded {
 }
 
 .lockout .countdown {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .apology {
@@ -1020,7 +1074,7 @@ img.fade.loaded {
 .apology input,
 .apology button {
   background: var(--bg-2);
-  border: 1px solid var(--bg-3);
+  border: 1px solid var(--line);
   padding: 0.7rem 1rem;
   outline: none;
 }
@@ -1040,25 +1094,63 @@ img.fade.loaded {
 }
 
 .apology button:hover {
-  color: var(--accent);
+  color: var(--accent-text);
   border-color: var(--flame-mid);
 }
 
 .eye-reply {
   min-height: 1.5em;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 /* ---------- theme picker ---------- */
 
-/* Pinned to the bottom-right corner on every page; the list opens upward. */
-#theme-picker {
+/* Pinned to the bottom-right corner on every page; the theme list opens upward. */
+.corner {
   position: fixed;
   right: 1.25rem;
   bottom: 1.25rem;
   z-index: 10;
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
   font-family: var(--mono);
   font-size: 0.8rem;
+}
+
+#theme-picker {
+  position: relative;
+}
+
+.corner-button {
+  display: grid;
+  place-items: center;
+  min-width: 2.75rem;
+  padding: 0 0.7rem;
+  background: color-mix(in srgb, var(--bg-2) 85%, transparent);
+  border: 1px solid var(--line);
+  color: var(--text);
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+
+.corner-button svg {
+  width: 0.8rem;
+  fill: currentColor;
+}
+
+.corner-button:hover,
+.corner-button:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent-text);
+  outline: none;
+}
+
+/* "Pause animations" is on: freeze every CSS animation on the page. */
+.motion-paused *,
+.motion-paused *::before,
+.motion-paused *::after {
+  animation-play-state: paused !important;
 }
 
 .theme-button {
@@ -1067,7 +1159,7 @@ img.fade.loaded {
   gap: 0.6rem;
   padding: 0.5rem 0.8rem;
   background: color-mix(in srgb, var(--bg-2) 85%, transparent);
-  border: 1px solid var(--bg-3);
+  border: 1px solid var(--line);
   color: var(--text);
   cursor: pointer;
   backdrop-filter: blur(6px);
@@ -1078,7 +1170,7 @@ img.fade.loaded {
 .theme-button:focus-visible,
 .theme-button[aria-expanded="true"] {
   border-color: var(--accent);
-  color: var(--accent);
+  color: var(--accent-text);
   outline: none;
 }
 
@@ -1113,7 +1205,7 @@ img.fade.loaded {
   padding: 0.35rem;
   list-style: none;
   background: var(--bg-2);
-  border: 1px solid var(--bg-3);
+  border: 1px solid var(--line);
   box-shadow: 0 0.75rem 2rem color-mix(in srgb, black 50%, transparent);
   outline: none;
   animation: menu-in 0.15s ease-out;
@@ -1139,6 +1231,9 @@ img.fade.loaded {
 
 .theme-list li.active {
   background: var(--bg-3);
+  /* the background alone is too subtle to show keyboard position */
+  outline: 1px solid var(--line);
+  outline-offset: -1px;
 }
 
 .theme-list li[aria-selected="true"] {
@@ -1193,7 +1288,7 @@ img.fade.loaded {
 }
 
 @media (max-width: 640px) {
-  #theme-picker {
+  .corner {
     right: 0.75rem;
     bottom: 0.75rem;
   }
