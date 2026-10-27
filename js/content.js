@@ -39,9 +39,16 @@ export const about = {
 //   slug: "my-project",                       // its address: /projects/my-project
 //   title: "My Project",
 //   description: "What it does, in one line.",
-//   image: "/images/my-project.png",          // 16:9 works best; omit for a plain glow
+//   image: "/images/my-project.png",          // card picture; 16:9 works best; omit for a plain glow
+//   images: [                                 // its page's slideshow; leave out to just show `image`
+//     { src: "/images/my-project.png", alt: "The main screen" },
+//     { src: "/images/my-project-2.png", alt: "The settings screen" },
+//   ],
 //   body: "<p>Longer write-up for its own page.</p>",
-//   links: [{ label: "GitHub", href: "https://github.com/..." }],
+//   links: [                                  // shown next to the title
+//     { label: "Site", href: "https://my-project.example" },
+//     { label: "GitHub", href: "https://github.com/..." },
+//   ],
 // },
 export const projects = [
   {
@@ -49,6 +56,12 @@ export const projects = [
     title: "Nova Player",
     description: "A Netflix-style IPTV player for Samsung smart TVs.",
     image: "/images/nova-player.jpg",
+    images: [
+      { src: "/images/nova-player.jpg", alt: "Nova's home screen: a big billboard for Tears of Steel above a row of recently added movies" },
+      { src: "/images/nova-player-details.jpg", alt: "A series page with play and My List buttons, season tabs and episode thumbnails" },
+      { src: "/images/nova-player-live.jpg", alt: "The Live TV guide: channel groups, a channel list, and what's on now and next" },
+      { src: "/images/nova-player-search.jpg", alt: "Search with an on-screen keyboard beside rows of results" },
+    ],
     body: `
       <p>Nova Player is an IPTV app I built for my Samsung TV. I wanted something that feels like a
       streaming service instead of a spreadsheet of channels, so it's designed to be used from the couch

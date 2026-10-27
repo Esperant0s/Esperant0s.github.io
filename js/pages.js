@@ -2,6 +2,7 @@ import { site, nav, about, projects, posts, photos } from "./content.js";
 import { mountEye } from "./eye.js";
 import { forgive } from "./rage.js";
 import { judgeApology } from "./apology.js";
+import { reduceMotion } from "./pointer.js";
 
 const capitalize = (word) => word[0].toUpperCase() + word.slice(1);
 
@@ -111,20 +112,73 @@ function projectsPage() {
   };
 }
 
+// A row of screenshots you can swipe or step through, with the neighbours
+// peeking in at the sides. One image just sits there without arrows.
+const carousel = (p) => {
+  const images = p.images?.length ? p.images : p.image ? [{ src: p.image, alt: p.description }] : [];
+  if (!images.length) return "";
+  const many = images.length > 1;
+  return `
+    <div class="carousel${many ? "" : " single"}" role="region" aria-roledescription="carousel" aria-label="${p.title} screenshots">
+      <div class="carousel-track" tabindex="0">
+        ${images
+          .map(
+            (img, i) => `
+          <div class="slide" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${images.length}">
+            <img class="fade" src="${img.src}" alt="${img.alt || ""}" ${i ? 'loading="lazy"' : ""} />
+          </div>`
+          )
+          .join("")}
+      </div>
+      ${many ? `
+      <button class="carousel-prev" type="button" aria-label="Previous image"><span aria-hidden="true">←</span></button>
+      <button class="carousel-next" type="button" aria-label="Next image"><span aria-hidden="true">→</span></button>` : ""}
+    </div>`;
+};
+
+function mountCarousel(root) {
+  const track = root.querySelector(".carousel-track");
+  if (!track) return;
+  const slides = [...track.children];
+  const middle = (el) => el.offsetLeft + el.offsetWidth / 2;
+
+  // Whichever slide is nearest the middle of the track.
+  const current = () => {
+    const mid = track.scrollLeft + track.clientWidth / 2;
+    return slides.reduce((best, s, i) => (Math.abs(middle(s) - mid) < Math.abs(middle(slides[best]) - mid) ? i : best), 0);
+  };
+
+  // Past either end wraps around to the other.
+  const show = (i) => {
+    const slide = slides[(i + slides.length) % slides.length];
+    track.scrollTo({ left: middle(slide) - track.clientWidth / 2, behavior: reduceMotion ? "auto" : "smooth" });
+  };
+
+  root.querySelector(".carousel-prev")?.addEventListener("click", () => show(current() - 1));
+  root.querySelector(".carousel-next")?.addEventListener("click", () => show(current() + 1));
+  // Clicking a peeking neighbour brings it to the middle.
+  slides.forEach((s, i) => s.addEventListener("click", () => i !== current() && show(i)));
+}
+
 function projectPage(slug) {
   const p = projects.find((x) => x.slug === slug);
   if (!p) return notFound();
   return {
     title: p.title,
     html: `
-      <main class="page">
-        ${back("/projects", "Projects")}
-        <h1>${p.title}</h1>
-        <p class="sub">${p.description}</p>
-        <div class="hero">${thumb(p)}</div>
+      <main class="page project">
+        <div class="project-head">
+          ${back("/projects", "Projects")}
+          <div class="title-row">
+            <h1>${p.title}</h1>
+            ${p.links?.length ? `<div class="links">${p.links.map((l) => external(l.label, l.href)).join("")}</div>` : ""}
+          </div>
+          <p class="sub description">${p.description}</p>
+        </div>
+        ${carousel(p)}
         <div class="content">${p.body}</div>
-        ${p.links?.length ? `<ul class="plain">${p.links.map((l) => `<li>${external(l.label, l.href)}</li>`).join("")}</ul>` : ""}
       </main>`,
+    mount: mountCarousel,
   };
 }
 

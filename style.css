@@ -911,12 +911,133 @@ img.fade.loaded {
   margin: 0;
 }
 
-.hero .placeholder,
-.hero img {
+/* ---------- project pages ---------- */
+
+/* The words keep the usual reading width; the screenshots run edge to edge. */
+.page.project {
+  max-width: none;
+  padding-inline: 0;
+}
+
+.project-head,
+.project .content {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding-inline: 1.5rem;
+}
+
+.title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 2rem;
+  margin-top: 1rem;
+}
+
+.title-row h1 {
+  margin: 0 auto 0 0;
+}
+
+.title-row .links {
+  display: flex;
+  gap: 0.5rem 1.5rem;
+  font-size: 1.3rem;
+}
+
+.project .description {
+  font-style: italic;
+  margin: 0.5rem 0 2rem;
+}
+
+.carousel {
+  position: relative;
+}
+
+/* Slides take 70% of the width and snap to the middle; the padding lets the
+   first and last ones centre too. */
+.carousel-track {
+  position: relative;
+  display: flex;
+  gap: 3rem;
+  padding-inline: 15%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-track:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.slide {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  max-width: 80rem;
+}
+
+.single .carousel-track {
+  justify-content: center;
+}
+
+.slide img {
+  display: block;
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
-  margin: 1.5rem 0;
+}
+
+/* The arrows cover the side margins and show up when you point at them. */
+.carousel-prev,
+.carousel-next {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: calc(15% - 1.5rem);
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.carousel-prev {
+  left: 0;
+}
+
+.carousel-next {
+  right: 0;
+}
+
+.carousel-prev span,
+.carousel-next span {
+  display: inline-grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  font-family: var(--mono);
+  font-size: 1.6rem;
+  color: var(--text-0);
+  background: var(--bg-2);
+  border: 2px solid var(--line);
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s, color 0.2s;
+}
+
+.carousel-prev:hover span,
+.carousel-next:hover span,
+.carousel-prev:focus-visible span,
+.carousel-next:focus-visible span {
+  opacity: 1;
+  color: var(--accent-text);
+  transform: scale(1.15);
+}
+
+.project .content {
+  margin-top: 2rem;
 }
 
 .masonry {
@@ -1260,6 +1381,24 @@ img.fade.loaded {
 @media (max-width: 860px) {
   .page.gallery {
     padding-inline: 1.5rem;
+  }
+
+  /* Phones: one slide at a time, arrows always showing over its edges. */
+  .carousel-track {
+    gap: 1rem;
+    padding-inline: 1.5rem;
+  }
+
+  .carousel-prev,
+  .carousel-next {
+    width: 20%;
+  }
+
+  .carousel-prev span,
+  .carousel-next span {
+    opacity: 0.85;
+    width: 2.5rem;
+    height: 2.5rem;
   }
 
   .card-grid {
