@@ -295,11 +295,18 @@ function notFound() {
   return {
     title: "Not found",
     html: `
-      <main class="page">
+      <main class="home lost">
+        <div class="lost-eye">
+          <span class="eye-slot"></span>
+          <span class="question" aria-hidden="true">?</span>
+        </div>
         <h1>404</h1>
-        <p class="sub">The eye looked everywhere, but this page doesn't exist.</p>
+        <p class="tagline">The eye looked everywhere, but this page doesn't exist.</p>
         ${back("/", "Home")}
       </main>`,
+    mount(root) {
+      mountEye(root.querySelector(".lost-eye .eye-slot"), { mood: "confused" });
+    },
   };
 }
 

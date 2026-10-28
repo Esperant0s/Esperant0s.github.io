@@ -150,7 +150,8 @@ export function eyeGeometry() {
 //           Stroking the cursor back and forth over it pets it and makes it happy.
 //   onRage: if given, clicking it many times in quick succession makes it
 //           charge a laser, then calls this with the eye's centre to fire it
-//   mood:   "angry" holds a permanent scowl (for the lockout page)
+//   mood:   "angry" holds a permanent scowl (for the lockout page);
+//           "confused" glances around, lost (for the 404 page)
 // Returns { soothe } to calm an angry eye down and make it happy.
 export function mountEye(slot, { intro = false, onOpen, onPoke, onRage, mood } = {}) {
   shapes ??= { burst: buildBurst(), iris: buildIris(), angryVeins: buildAngryVeins() };
@@ -354,6 +355,8 @@ export function mountEye(slot, { intro = false, onOpen, onPoke, onRage, mood } =
   const look = { x: 0, y: 0 };
   const MAX_X = 4;
   const MAX_Y = 12;
+  // When set ({ x, y } from -1 to 1), the eye looks there instead of at the cursor.
+  let gaze = null;
 
   function trackIris() {
     if (!alive()) return;
@@ -363,7 +366,10 @@ export function mountEye(slot, { intro = false, onOpen, onPoke, onRage, mood } =
 
     let tx = 0;
     let ty = 0;
-    if (pointer.active) {
+    if (gaze) {
+      tx = gaze.x * MAX_X;
+      ty = gaze.y * MAX_Y;
+    } else if (pointer.active) {
       const dx = pointer.x - cx;
       const dy = pointer.y - cy;
       const dist = Math.hypot(dx, dy) || 1;
@@ -377,6 +383,28 @@ export function mountEye(slot, { intro = false, onOpen, onPoke, onRage, mood } =
     look.y += (ty - look.y) * 0.12;
     iris.setAttribute("transform", `translate(${look.x.toFixed(2)} ${look.y.toFixed(2)})`);
     requestAnimationFrame(trackIris);
+  }
+
+  // Lost: the eye glances from spot to spot, never the same one twice in a
+  // row, now and then blinking as if it can't believe what it sees. It holds
+  // still while the visitor has paused animations.
+  async function lookAround() {
+    const spots = [[-1, -0.3], [1, -0.4], [-0.7, 0.5], [0.9, 0.6], [0, -0.9], [-1, 0.2], [0.6, -0.8], [0, 0.7]];
+    let last = -1;
+    while (alive()) {
+      if (document.documentElement.classList.contains("motion-paused")) {
+        await wait(300);
+        continue;
+      }
+      let next;
+      do next = Math.floor(Math.random() * spots.length);
+      while (next === last);
+      last = next;
+      const [x, y] = spots[next];
+      gaze = { x, y };
+      await wait(600 + Math.random() * 1000);
+      if (Math.random() < 0.3) await blink();
+    }
   }
 
   // Smoothly eases happiness toward a target, so petting fades in and out.
@@ -579,6 +607,16 @@ export function mountEye(slot, { intro = false, onOpen, onPoke, onRage, mood } =
     svg.classList.add("irritated");
     setOpenness(1);
     setFrown(1);
+    requestAnimationFrame(trackIris);
+    return { soothe };
+  }
+  if (mood === "confused") {
+    svg.classList.add("confused");
+    svg.setAttribute("aria-label", "A spiked, burning eye, looking around in confusion");
+    setOpenness(1);
+    // Without motion it just peers off to one side.
+    if (reduceMotion) gaze = { x: -0.8, y: -0.6 };
+    else lookAround();
     requestAnimationFrame(trackIris);
     return { soothe };
   }

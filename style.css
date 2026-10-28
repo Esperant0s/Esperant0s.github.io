@@ -1224,6 +1224,49 @@ img.fade.loaded {
   color: var(--accent-text);
 }
 
+/* ---------- 404 ---------- */
+
+/* A lost eye, tilting its head side to side, with a question mark bobbing
+   beside it. Everything is centred like the home page. */
+.lost-eye {
+  position: relative;
+  display: inline-flex;
+}
+
+.lost .eye {
+  height: max(8rem, min(20vw, 30vh));
+}
+
+.eye.confused {
+  animation: puzzled 5s ease-in-out infinite;
+}
+
+@keyframes puzzled {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(5deg); }
+}
+
+.lost .question {
+  position: absolute;
+  left: 80%;
+  top: 0;
+  font-family: var(--mono);
+  font-size: max(2.4rem, min(6vw, 9vh));
+  line-height: 1;
+  color: var(--accent-text);
+  text-shadow: 0 0 0.4em color-mix(in srgb, var(--accent) 70%, transparent);
+  animation: wonder 2.6s ease-in-out infinite;
+}
+
+@keyframes wonder {
+  0%, 100% { transform: translateY(0) rotate(10deg); }
+  50% { transform: translateY(-0.35em) rotate(-6deg); }
+}
+
+.lost h1 {
+  font-size: clamp(2.4rem, min(6vw, 8vh), 4.5rem);
+}
+
 /* ---------- theme picker ---------- */
 
 /* Pinned to the bottom-right corner on every page; the theme list opens upward. */
