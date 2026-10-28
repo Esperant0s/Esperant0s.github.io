@@ -5,13 +5,20 @@
 //   - contain an apology phrase as whole words ("sorry", "I apologize",
 //     "forgive me", "my bad", ...), not buried inside another word
 //   - not take it back ("not sorry", "sorry not sorry", "jk", "lol", ...)
-//   - be made of real-looking words, not keyboard mashing
+//   - be made of real-looking words, not keyboard mashing (emoji and
+//     emoticons like ":(" are fine, they just don't count as words)
 //   - if it's longer than a few words, actually be about you ("I", "me", "my")
 //     rather than a random sentence that happens to include "sorry"
 
 const APOLOGY = /\b(sorry|apologi[sz]e[ds]?|apologies|my bad|forgive me|pardon me|i regret|i was wrong|i messed up|my fault)\b/;
+// A "no" only takes the apology back when it's right before it ("not sorry",
+// "won't really apologize"), in the same clause: no comma between them and no
+// new "I ..." starting, so "I won't do it again, sorry" still counts.
 const TAKEN_BACK =
-  /\b(not|never|no|isn'?t|aren'?t|ain'?t|wasn'?t|won'?t|don'?t|nope)\b[^.!?]{0,20}\b(sorry|apologi|forgive|regret)|\bsorry,? not sorry\b|\b(jk|lol|lmao|lmfao|kidding|whatever|psych|sike)\b|\/s\b/;
+  /\b(not|never|no|isn'?t|aren'?t|ain'?t|wasn'?t|won'?t|don'?t|nope)\b(?:\s+(?!(?:i|i'm|im|i've|i'll|i'd|we|we're)\b)[a-z']+){0,2}\s+(sorry|apologi|forgive|regret)|\bsorry,? not sorry\b|\b(jk|lol|lmao|lmfao|kidding|whatever|psych|sike)\b|\/s\b/;
+// Emoji, and emoticons standing on their own: ":(", ";-)", ":'(", "<3", "T_T".
+const EMOJI = /[\p{Extended_Pictographic}‍️]/gu;
+const EMOTICON = /(^|\s)(?:[:;=]'?-?[()[\]dpo3/\\|*]+|<\/?3+|t_t|;_;)(?=\s|$)/g;
 const ABOUT_ME = /\b(i|i'm|im|i've|i'll|me|my|mine|myself|we|us|our)\b/;
 const VOWEL = /[aeiouy]/;
 
@@ -24,7 +31,7 @@ function looksLikeWord(word) {
 }
 
 export function judgeApology(text) {
-  const said = text.trim().toLowerCase();
+  const said = text.toLowerCase().replace(EMOJI, " ").replace(EMOTICON, "$1").trim();
   const words = said.match(/[a-z']+/g) || [];
 
   if (!words.length) return { ok: false, reply: "The eye is waiting for you to say something." };

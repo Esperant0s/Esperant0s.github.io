@@ -139,10 +139,12 @@ document.querySelector(".skip-link").addEventListener("click", (e) => {
 });
 
 document.addEventListener("click", (e) => {
-  const a = e.target.closest("a");
-  if (!a || a.target || a.getAttribute("href").startsWith("#") || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  const a = e.target.closest("a[href]");
+  if (!a || a.target || a.hasAttribute("download") || a.getAttribute("href").startsWith("#") || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
   const url = new URL(a.href, location.href);
   if (url.origin !== location.origin || url.protocol === "mailto:") return;
+  // Links to actual files (/images/x.png, /resume.pdf) open the file, not a page.
+  if (/\.[a-z0-9]+$/i.test(url.pathname)) return;
   e.preventDefault();
   if (a.classList.contains("nav-link")) burstAt(e.clientX, e.clientY);
   go(url.pathname);

@@ -33,6 +33,27 @@ jobs:
           # still load it, and the page router then shows the right page.
           cp index.html _site/404.html
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # The 404 page alone would send every page with a 404 status, which hides
+      # it from search engines and some link previews. So each real page also
+      # gets its own copy of index.html (about/index.html, projects/nova-player/
+      # index.html, ...), listed from js/content.js, and loads with a 200.
+      - name: Give each page its own address
+        run: |
+          node --input-type=module -e '
+            import { cpSync, mkdirSync } from "node:fs";
+            import { nav, projects, posts } from "./js/content.js";
+            const routes = [...nav, ...projects.map((p) => `projects/${p.slug}`), ...posts.map((p) => `blog/${p.slug}`)];
+            for (const route of routes) {
+              mkdirSync(`_site/${route}`, { recursive: true });
+              cpSync("index.html", `_site/${route}/index.html`);
+              console.log(`/${route}`);
+            }
+          '
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
