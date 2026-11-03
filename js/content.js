@@ -92,6 +92,60 @@ export const projects = [
     `,
     links: [{ label: "GitHub", href: "https://github.com/Esperant0s/nova-player" }],
   },
+  {
+    slug: "mural",
+    title: "Mural",
+    description: "A music player for computers and phones that streams, downloads and keeps a local library.",
+    body: `
+      <p>Mural is a music player for Windows, macOS, Linux, Android and iPhone. It streams from YouTube,
+      YouTube Music and SoundCloud, downloads songs to play offline, and keeps your own music in one library.
+      You don't need an account or a subscription.</p>
+      <p>It's my fork of <a href="https://github.com/cloverscripts/riff-muriel">Muriel</a> by cloverscripts,
+      which is based on <a href="https://github.com/rootscripts/riff">Riff</a> by rootscripts. I started out
+      fixing bugs and adding features for myself. Once it had changed enough, I gave it its own name so it
+      installs next to Muriel instead of replacing it.</p>
+
+      <h2>What it does</h2>
+      <ul>
+        <li><strong>Streaming and downloads</strong> from YouTube, YouTube Music and SoundCloud, with song
+        radio, a "My Wave" mix and crossfade between songs.</li>
+        <li><strong>Lyrics</strong>: synced lyrics from the web, LRC files, word-by-word timing, translations
+        and a fullscreen karaoke view.</li>
+        <li><strong>Audio tools</strong>: an equalizer with presets, live speed control, reverb, and a small
+        editor for trimming and exporting clips.</li>
+        <li><strong>Your look</strong>: an image, GIF or video background with optional glass blur, and a
+        compact layout with the queue and lyrics in a slide-over drawer.</li>
+      </ul>
+
+      <h2>What I added</h2>
+      <ul>
+        <li><strong>In-app updates.</strong> Mural downloads new versions itself and checks each file against
+        GitHub's checksum. It restarts into the new version on Windows, macOS and Linux and opens the installer
+        on Android.</li>
+        <li><strong>Music already on your device.</strong> On a computer it finds songs in your Music and
+        Downloads folders and plays them where they are, without copying them. On Android it reads the
+        phone's music library, and on iPhone it reads Mural's folder in the Files app.</li>
+        <li><strong>Offline markers.</strong> A small arrow appears next to every song that plays without
+        internet.</li>
+        <li><strong>A cleaner phone app.</strong> Each version only shows the settings that work on it, so
+        phones no longer show desktop-only options.</li>
+        <li><strong>Bug fixes.</strong> I reviewed the whole codebase twice and fixed more than 40 bugs in
+        playback, downloads, sync, track matching and the local server.</li>
+        <li><strong>Moving over from Muriel.</strong> On first start, Mural copies your Muriel playlists,
+        settings and songs and leaves Muriel's own files as they are.</li>
+      </ul>
+
+      <h2>How it's built</h2>
+      <p>The desktop app runs on Electron and the phone apps use Capacitor. All of them share the same plain
+      JavaScript interface. yt-dlp and ffmpeg handle streams and downloads and install themselves the first
+      time you open the app. Builds for every platform are made by GitHub Actions and published on the
+      Releases page.</p>
+    `,
+    links: [
+      { label: "GitHub", href: "https://github.com/Esperant0s/riff-muriel" },
+      { label: "Download", href: "https://github.com/Esperant0s/riff-muriel/releases/latest" },
+    ],
+  },
 ];
 
 // Each post gets a row on the Blog page and its own page. Example entry:
