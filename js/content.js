@@ -96,6 +96,13 @@ export const projects = [
     slug: "mural",
     title: "Mural",
     description: "A music player for computers and phones that streams, downloads and keeps a local library.",
+    image: "/images/mural.jpg",
+    images: [
+      { src: "/images/mural.jpg", alt: "Mural's home screen: a My Wave mix, recently played songs and a row of trending songs" },
+      { src: "/images/mural-karaoke.jpg", alt: "Fullscreen karaoke: album art and controls on the left, synced lyrics on the right" },
+      { src: "/images/mural-album.jpg", alt: "An album page with the cover, artist and year beside its track list" },
+      { src: "/images/mural-audio.jpg", alt: "The Audio panel with speed and pitch presets and sliders" },
+    ],
     body: `
       <p>Mural is a music player for Windows, macOS, Linux, Android and iPhone. It streams from YouTube,
       YouTube Music and SoundCloud, downloads songs to play offline, and keeps your own music in one library.
