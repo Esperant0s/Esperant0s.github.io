@@ -46,7 +46,7 @@ jobs:
           node --input-type=module -e '
             import { cpSync, mkdirSync } from "node:fs";
             import { nav, projects, posts } from "./js/content.js";
-            const routes = [...nav, ...projects.map((p) => `projects/${p.slug}`), ...posts.map((p) => `blog/${p.slug}`)];
+            const routes = [...nav, ...projects.flatMap((p) => [p.slug, ...(p.oldSlugs || [])].map((s) => `projects/${s}`)), ...posts.map((p) => `blog/${p.slug}`)];
             for (const route of routes) {
               mkdirSync(`_site/${route}`, { recursive: true });
               cpSync("index.html", `_site/${route}/index.html`);

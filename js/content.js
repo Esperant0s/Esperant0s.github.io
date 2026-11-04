@@ -37,6 +37,7 @@ export const about = {
 // Each project gets a card and its own page. Example entry:
 // {
 //   slug: "my-project",                       // its address: /projects/my-project
+//   oldSlugs: ["old-name"],                   // optional: earlier addresses that still open it
 //   title: "My Project",
 //   description: "What it does, in one line.",
 //   image: "/images/my-project.png",          // card picture; 16:9 works best; omit for a plain glow
@@ -93,24 +94,25 @@ export const projects = [
     links: [{ label: "GitHub", href: "https://github.com/Esperant0s/nova-player" }],
   },
   {
-    slug: "mural",
-    title: "Mural",
+    slug: "uriel",
+    oldSlugs: ["mural"], // its address before the rename: /projects/mural still opens it
+    title: "Uriel",
     description: "A music player for computers and phones that streams, downloads and keeps a local library.",
-    image: "/images/mural.jpg",
+    image: "/images/uriel.jpg",
     images: [
-      { src: "/images/mural.jpg", alt: "Mural's home screen: a My Wave mix, recently played songs and a row of trending songs" },
-      { src: "/images/mural-karaoke.jpg", alt: "Fullscreen karaoke: album art and controls on the left, synced lyrics on the right" },
-      { src: "/images/mural-album.jpg", alt: "An album page with the cover, artist and year beside its track list" },
-      { src: "/images/mural-audio.jpg", alt: "The Audio panel with speed and pitch presets and sliders" },
+      { src: "/images/uriel.jpg", alt: "Uriel's home screen: a My Wave mix, recently played songs and a row of trending songs" },
+      { src: "/images/uriel-karaoke.jpg", alt: "Fullscreen karaoke: album art and controls on the left, synced lyrics on the right" },
+      { src: "/images/uriel-album.jpg", alt: "An album page with the cover, artist and year beside its track list" },
+      { src: "/images/uriel-audio.jpg", alt: "The Audio panel with speed and pitch presets and sliders" },
     ],
     body: `
-      <p>Mural is a music player for Windows, macOS, Linux, Android and iPhone. It streams from YouTube,
+      <p>Uriel is a music player for Windows, macOS, Linux, Android and iPhone. It streams from YouTube,
       YouTube Music and SoundCloud, downloads songs to play offline, and keeps your own music in one library.
       You don't need an account or a subscription.</p>
       <p>It's my fork of <a href="https://github.com/cloverscripts/riff-muriel">Muriel</a> by cloverscripts,
       which is based on <a href="https://github.com/rootscripts/riff">Riff</a> by rootscripts. I started out
       fixing bugs and adding features for myself. Once it had changed enough, I gave it its own name so it
-      installs next to Muriel instead of replacing it.</p>
+      installs next to Muriel instead of replacing it. It was called Mural at first and is Uriel now.</p>
 
       <h2>What it does</h2>
       <ul>
@@ -126,19 +128,19 @@ export const projects = [
 
       <h2>What I added</h2>
       <ul>
-        <li><strong>In-app updates.</strong> Mural downloads new versions itself and checks each file against
+        <li><strong>In-app updates.</strong> Uriel downloads new versions itself and checks each file against
         GitHub's checksum. It restarts into the new version on Windows, macOS and Linux and opens the installer
         on Android.</li>
         <li><strong>Music already on your device.</strong> On a computer it finds songs in your Music and
         Downloads folders and plays them where they are, without copying them. On Android it reads the
-        phone's music library, and on iPhone it reads Mural's folder in the Files app.</li>
+        phone's music library, and on iPhone it reads Uriel's folder in the Files app.</li>
         <li><strong>Offline markers.</strong> A small arrow appears next to every song that plays without
         internet.</li>
         <li><strong>A cleaner phone app.</strong> Each version only shows the settings that work on it, so
         phones no longer show desktop-only options.</li>
         <li><strong>Bug fixes.</strong> I reviewed the whole codebase twice and fixed more than 40 bugs in
         playback, downloads, sync, track matching and the local server.</li>
-        <li><strong>Moving over from Muriel.</strong> On first start, Mural copies your Muriel playlists,
+        <li><strong>Moving over from Muriel.</strong> On first start, Uriel copies your Muriel playlists,
         settings and songs and leaves Muriel's own files as they are.</li>
       </ul>
 

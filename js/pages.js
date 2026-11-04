@@ -161,7 +161,7 @@ function mountCarousel(root) {
 }
 
 function projectPage(slug) {
-  const p = projects.find((x) => x.slug === slug);
+  const p = projects.find((x) => x.slug === slug || (x.oldSlugs || []).includes(slug));
   if (!p) return notFound();
   return {
     title: p.title,
