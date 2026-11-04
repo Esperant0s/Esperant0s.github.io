@@ -112,7 +112,7 @@ export const projects = [
       <p>It's my fork of <a href="https://github.com/cloverscripts/riff-muriel">Muriel</a> by cloverscripts,
       which is based on <a href="https://github.com/rootscripts/riff">Riff</a> by rootscripts. I started out
       fixing bugs and adding features for myself. Once it had changed enough, I gave it its own name so it
-      installs next to Muriel instead of replacing it. It was called Mural at first and is Uriel now.</p>
+      installs next to Muriel instead of replacing it.</p>
 
       <h2>What it does</h2>
       <ul>
@@ -151,8 +151,8 @@ export const projects = [
       Releases page.</p>
     `,
     links: [
-      { label: "GitHub", href: "https://github.com/Esperant0s/riff-muriel" },
-      { label: "Download", href: "https://github.com/Esperant0s/riff-muriel/releases/latest" },
+      { label: "GitHub", href: "https://github.com/Esperant0s/Uriel" },
+      { label: "Download", href: "https://github.com/Esperant0s/Uriel/releases/latest" },
     ],
   },
 ];
