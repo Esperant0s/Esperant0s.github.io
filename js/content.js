@@ -15,8 +15,8 @@ export const nav = ["about", "projects", "blog", "photos", "contact"];
 export const about = {
   intro:
     "Hello there, my name is Esper. I'm a software developer working remotely from around the globe. " +
-    "I also go by the name Esper online. I'm interested in web and game development, art, AI, and a " +
-    "whole list of other topics. I love making things that are unique and cool looking.",
+    "I'm interested in web and game development, art, AI, and a whole list of other topics. " +
+    "I love making things that are unique and cool looking.",
   // Also listed on the Contact page.
   links: [
     { label: "GitHub", href: "https://github.com/Esperant0s" },
