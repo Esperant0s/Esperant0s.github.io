@@ -1473,6 +1473,16 @@ img.fade.loaded {
   .corner {
     right: 0.75rem;
     bottom: 0.75rem;
+    transition: transform 0.25s ease, opacity 0.25s;
+  }
+
+  /* On phones the text runs the full width, so the buttons would sit on top of
+     it. They slide away while you scroll down and return when you scroll up
+     (main.js adds the class). Keyboard focus always brings them back. */
+  .corner.tucked:not(:focus-within) {
+    transform: translateY(calc(100% + 1rem));
+    opacity: 0;
+    pointer-events: none;
   }
 
   .theme-button .theme-label {

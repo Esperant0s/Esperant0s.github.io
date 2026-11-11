@@ -152,4 +152,22 @@ document.addEventListener("click", (e) => {
 
 window.addEventListener("popstate", () => render(normalise(location.pathname)));
 
+// The corner buttons step aside while you scroll down a page and come back
+// when you scroll up, reach the end, or open the theme menu. Only phones act
+// on the class (style.css), where the buttons would otherwise cover the text.
+const corner = document.querySelector(".corner");
+let lastScroll = window.scrollY;
+window.addEventListener(
+  "scroll",
+  () => {
+    const y = window.scrollY;
+    const atEnd = y + window.innerHeight >= document.documentElement.scrollHeight - 8;
+    const menuOpen = corner.querySelector(".theme-list:not([hidden])");
+    if (Math.abs(y - lastScroll) < 8 && !atEnd) return; // ignore tiny jitters
+    corner.classList.toggle("tucked", y > lastScroll && y > 0 && !atEnd && !menuOpen);
+    lastScroll = y;
+  },
+  { passive: true }
+);
+
 render(currentPath, { animate: false });

@@ -100,10 +100,10 @@ export const projects = [
     description: "A music player for computers and phones that streams, downloads and keeps a local library.",
     image: "/images/uriel.jpg",
     images: [
-      { src: "/images/uriel.jpg", alt: "Uriel's home screen: a My Wave mix, recently played songs and a row of trending songs" },
+      { src: "/images/uriel.jpg", alt: "Uriel's home screen: a row of trending songs above the player bar, with a song playing" },
+      { src: "/images/uriel-lyrics.jpg", alt: "The Now playing panel open beside the home screen, with the cover and the current lyric line" },
       { src: "/images/uriel-karaoke.jpg", alt: "Fullscreen karaoke: album art and controls on the left, synced lyrics on the right" },
-      { src: "/images/uriel-album.jpg", alt: "An album page with the cover, artist and year beside its track list" },
-      { src: "/images/uriel-audio.jpg", alt: "The Audio panel with speed and pitch presets and sliders" },
+      { src: "/images/uriel-audio.jpg", alt: "The Audio panel on its Equalizer tab, with a ten-band curve dialled in" },
     ],
     body: `
       <p>Uriel is a music player for Windows, macOS, Linux, Android and iPhone. It streams from YouTube,
@@ -112,7 +112,7 @@ export const projects = [
       <p>It's my fork of <a href="https://github.com/cloverscripts/riff-muriel">Muriel</a> by cloverscripts,
       which is based on <a href="https://github.com/rootscripts/riff">Riff</a> by rootscripts. I started out
       fixing bugs and adding features for myself. Once it had changed enough, I gave it its own name so it
-      installs next to Muriel instead of replacing it.</p>
+      installs next to Muriel instead of replacing it. It was called Mural for its first few releases.</p>
 
       <h2>What it does</h2>
       <ul>
@@ -128,27 +128,40 @@ export const projects = [
 
       <h2>What I added</h2>
       <ul>
+        <li><strong>A native player on Android.</strong> Songs play through Android's own media player
+        instead of a web page, so music keeps going with the screen off, and the lock screen, notification
+        and earbud buttons all work. A tap on your earbuds starts the last song even when Uriel is closed.
+        The equalizer, effects and crossfade run in the native player too.</li>
+        <li><strong>Songs that start faster and fail less.</strong> Uriel keeps track of which source is
+        working and tries them in order, so when YouTube blocks a connection a song starts from another
+        source in a couple of seconds, and one that can't be found says so right away. A stream that dies mid-song picks up again,
+        and you can play through your own YouTube sign-in if YouTube asks for one.</li>
         <li><strong>In-app updates.</strong> Uriel downloads new versions itself and checks each file against
         GitHub's checksum. It restarts into the new version on Windows, macOS and Linux and opens the installer
         on Android.</li>
         <li><strong>Music already on your device.</strong> On a computer it finds songs in your Music and
         Downloads folders and plays them where they are, without copying them. On Android it reads the
         phone's music library, and on iPhone it reads Uriel's folder in the Files app.</li>
-        <li><strong>Offline markers.</strong> A small arrow appears next to every song that plays without
-        internet.</li>
-        <li><strong>A cleaner phone app.</strong> Each version only shows the settings that work on it, so
-        phones no longer show desktop-only options.</li>
+        <li><strong>Better offline.</strong> A small arrow marks every song that plays without internet, and
+        saved songs start at once instead of searching online first.</li>
+        <li><strong>A bigger, safer library.</strong> Playlists, favorites and history moved to storage
+        without the old 5 MB limit, and a failed load can no longer wipe them.</li>
+        <li><strong>A tidier interface.</strong> The player bar has centred, Spotify-style controls, the app
+        opens about a second sooner and in your chosen theme, and each version only shows the settings that
+        work on it.</li>
         <li><strong>Bug fixes.</strong> I reviewed the whole codebase twice and fixed more than 40 bugs in
-        playback, downloads, sync, track matching and the local server.</li>
+        playback, downloads, sync, track matching and the local server, and I keep fixing the ones people
+        report.</li>
         <li><strong>Moving over from Muriel.</strong> On first start, Uriel copies your Muriel playlists,
         settings and songs and leaves Muriel's own files as they are.</li>
       </ul>
 
       <h2>How it's built</h2>
-      <p>The desktop app runs on Electron and the phone apps use Capacitor. All of them share the same plain
-      JavaScript interface. yt-dlp and ffmpeg handle streams and downloads and install themselves the first
-      time you open the app. Builds for every platform are made by GitHub Actions and published on the
-      Releases page.</p>
+      <p>The desktop app runs on Electron and the phone apps use Capacitor, and they share one JavaScript
+      interface. The code is split into desktop, phone and shared folders. The phone layer is written in
+      TypeScript, and Android's player is native Kotlin on Media3. yt-dlp and ffmpeg handle streams and
+      downloads and install themselves the first time you open the app. Builds for every platform are made
+      by GitHub Actions and published on the Releases page.</p>
     `,
     links: [
       { label: "GitHub", href: "https://github.com/Esperant0s/Uriel" },
