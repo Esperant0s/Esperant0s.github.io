@@ -133,12 +133,13 @@ function buildAngryVeins() {
 }
 
 let shapes;
+const getShapes = () => (shapes ??= { burst: buildBurst(), iris: buildIris(), angryVeins: buildAngryVeins() });
 
 // The eye's fixed geometry, for drawing it outside the page (the favicon and
 // link-preview generator in scripts/make-icons.mjs uses this).
 export function eyeGeometry() {
-  shapes ??= { burst: buildBurst(), iris: buildIris(), angryVeins: buildAngryVeins() };
-  return { CX, CY, EYE_W, EYE_H, IRIS_SCALE, burst: shapes.burst, iris: shapes.iris };
+  const { burst, iris } = getShapes();
+  return { CX, CY, EYE_W, EYE_H, IRIS_SCALE, burst, iris };
 }
 
 // Builds a spiked, slit-pupilled eye inside `slot`. It keeps blinking and
@@ -154,8 +155,7 @@ export function eyeGeometry() {
 //           "confused" glances around, lost (for the 404 page)
 // Returns { soothe } to calm an angry eye down and make it happy.
 export function mountEye(slot, { intro = false, onOpen, onPoke, onRage, mood } = {}) {
-  shapes ??= { burst: buildBurst(), iris: buildIris(), angryVeins: buildAngryVeins() };
-  const { burst, iris: irisShape, angryVeins } = shapes;
+  const { burst, iris: irisShape, angryVeins } = getShapes();
   const id = `eye-clip-${++count}`;
 
   slot.innerHTML = `
@@ -288,17 +288,7 @@ export function mountEye(slot, { intro = false, onOpen, onPoke, onRage, mood } =
     });
   }
 
-  function animateOpenness(from, to, ms) {
-    return new Promise((resolve) => {
-      const start = performance.now();
-      function step(now) {
-        const t = Math.min((now - start) / ms, 1);
-        setOpenness(from + (to - from) * ease(t));
-        t < 1 ? requestAnimationFrame(step) : resolve();
-      }
-      requestAnimationFrame(step);
-    });
-  }
+  const animateOpenness = (from, to, ms) => animate(from, to, ms, setOpenness);
 
   // Only one lid animation at a time, so a click can't collide with an idle blink.
   let busy = false;

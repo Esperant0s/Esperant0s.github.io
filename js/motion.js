@@ -6,8 +6,6 @@ import { setPaused } from "./field.js";
 
 const STORAGE_KEY = "motion-paused";
 
-export const motionPaused = () => document.documentElement.classList.contains("motion-paused");
-
 function apply(paused) {
   document.documentElement.classList.toggle("motion-paused", paused);
   setPaused(paused);

@@ -177,4 +177,7 @@ document.addEventListener("themechange", () => {
 });
 readTheme();
 resize();
+// The first frame can be drawn before Monocraft has loaded. With motion off
+// that frame stays up, so draw it again once the font is ready.
+document.fonts.ready.then(() => draw(performance.now()));
 if (!reduceMotion) requestAnimationFrame(loop);

@@ -49,8 +49,10 @@ const meta = (html, key, value) => {
   return html.replace(tag, (_, before, after) => before + escape(String(value)) + after);
 };
 
+// GitHub Pages serves each page from its folder and redirects /about to
+// /about/, so the addresses we hand out end in a slash to skip the redirect.
 for (const page of pages) {
-  const url = `${ORIGIN}/${page.canonical || page.route}`;
+  const url = `${ORIGIN}/${page.canonical || page.route}/`;
   const title = `${page.title} · ${site.name}`;
   let html = template.replace(/<title>[^<]*<\/title>/, `<title>${escape(title)}</title>\n    <link rel="canonical" href="${url}" />`);
   html = meta(html, "description", page.description);
@@ -72,7 +74,7 @@ const listed = ["", ...pages.filter((p) => !p.canonical || p.canonical === p.rou
 writeFileSync(
   `${out}/sitemap.xml`,
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${listed
-    .map((route) => `  <url><loc>${ORIGIN}/${route}</loc></url>`)
+    .map((route) => `  <url><loc>${ORIGIN}/${route ? `${route}/` : ""}</loc></url>`)
     .join("\n")}\n</urlset>\n`
 );
 writeFileSync(`${out}/robots.txt`, `User-agent: *\nAllow: /\n\nSitemap: ${ORIGIN}/sitemap.xml\n`);

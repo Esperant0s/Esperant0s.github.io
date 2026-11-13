@@ -49,6 +49,10 @@ function render(path, { animate = true } = {}) {
   // While the eye's lockout is running, every address shows the lockout page.
   const locked = lockedUntil();
   const page = locked ? lockoutPage(locked, () => render(currentPath, { animate: false })) : resolve(path);
+  if (page.path && page.path !== path) {
+    history.replaceState({}, "", page.path);
+    path = page.path;
+  }
   const bare = page.home || page.bare; // no header on these
   document.title = page.home ? "Esper" : `${page.title} · Esper`;
 

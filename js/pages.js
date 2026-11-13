@@ -16,7 +16,8 @@ const external = (label, href) =>
 const back = (href, label) =>
   `<a class="back" href="${href}"><span class="arrow" aria-hidden="true">←</span>${label}</a>`;
 
-const count = (title, n) => `<h1>${title}${n ? `<span class="count">[${n}]</span>` : ""}</h1>`;
+// The bracketed count is just decoration; screen readers hear only the title.
+const count = (title, n) => `<h1>${title}${n ? `<span class="count" aria-hidden="true">[${n}]</span>` : ""}</h1>`;
 
 // Shown on a list page until it has entries.
 const empty = (what) => `<p class="sub empty">No ${what} yet. Check back soon.</p>`;
@@ -165,6 +166,7 @@ function projectPage(slug) {
   if (!p) return notFound();
   return {
     title: p.title,
+    path: `/projects/${p.slug}`, // an old slug's address gets swapped for this one
     html: `
       <main class="page project">
         <div class="project-head">
